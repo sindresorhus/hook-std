@@ -59,7 +59,7 @@ Suppress stdout/stderr output.
 
 Type: `function`
 
-Receives stdout/stderr as the first argument. Return a string to modify it.
+Receives stdout/stderr as the first argument. Return a string to modify it. Optionally, when in silent mode, you may return a `boolean` to influence the return value of `.write(...)`.
 
 
 ## License
