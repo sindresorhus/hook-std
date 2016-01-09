@@ -10,7 +10,7 @@ function hook(type, opts, cb) {
 	var write = std.write;
 
 	std.write = function (str, enc, cb2) {
-		var cbRet = cb(str);
+		var cbRet = cb(str, enc);
 
 		if (opts.silent) {
 			return typeof cbRet === 'boolean' ? cbRet : true;

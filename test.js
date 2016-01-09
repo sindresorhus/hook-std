@@ -141,3 +141,17 @@ test.serial('callback can return a buffer', t => {
 	t.true(process.stdout.write('bar'));
 	t.same(log, [[new Buffer('foo')], [new Buffer('bar')]]);
 });
+
+test.serial('callback receives encoding type', t => {
+	const log = [];
+
+	process.stdout = {
+		write: () => t.fail()
+	};
+
+	fn.stdout({silent: true}, loggingWrite(log, () => true));
+
+	t.true(process.stdout.write('a9fe', 'hex'));
+	t.true(process.stdout.write('a234', 'hex'));
+	t.same(log, [['a9fe', 'hex'], ['a234', 'hex']]);
+});
