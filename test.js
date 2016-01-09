@@ -127,3 +127,17 @@ test.serial('if silent, callback can return a boolean', t => {
 	t.false(process.stdout.write('bar'));
 	t.same(log, ['foo', 'bar']);
 });
+
+test.serial('callback can return a buffer', t => {
+	const log = [];
+
+	process.stdout = {
+		write: loggingWrite(log, () => true)
+	};
+
+	fn.stdout(str => new Buffer(str));
+
+	t.true(process.stdout.write('foo'));
+	t.true(process.stdout.write('bar'));
+	t.same(log, [[new Buffer('foo')], [new Buffer('bar')]]);
+});

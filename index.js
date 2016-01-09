@@ -16,7 +16,7 @@ function hook(type, opts, cb) {
 			return typeof cbRet === 'boolean' ? cbRet : true;
 		}
 
-		var ret = typeof cbRet === 'string' ? cbRet : str;
+		var ret = Buffer.isBuffer(cbRet) || typeof cbRet === 'string' ? cbRet : str;
 		return write.call(std, ret, enc, cb2);
 	};
 
