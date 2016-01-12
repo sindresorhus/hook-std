@@ -68,19 +68,20 @@ test.serial.cb('hook stderr', t => {
 });
 
 function loggingWrite(log, retVal) {
-	return function () {
-		var items = Array.prototype.slice.call(arguments);
+	return (...items) => {
 		while (items[items.length - 1] === undefined) {
 			items.pop();
 		}
+
 		log.push(items);
+
 		return retVal();
 	};
 }
 
 test.serial('passes through the return value of the underlying write call', t => {
-	let returnValue = false;
 	const log = [];
+	let returnValue = false;
 
 	process.stdout = {
 		write: loggingWrite(log, () => returnValue)
@@ -96,6 +97,7 @@ test.serial('passes through the return value of the underlying write call', t =>
 
 test.serial('if silent, returns true by default', t => {
 	const log = [];
+
 	process.stdout = {
 		write: () => t.fail()
 	};
