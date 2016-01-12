@@ -10,12 +10,14 @@ function hook(type, opts, cb) {
 	var write = std.write;
 
 	std.write = function (str, enc, cb2) {
-		var cbRet = cb(str);
-		var ret = typeof cbRet === 'string' ? cbRet : str;
+		var cbRet = cb(str, enc);
 
-		if (!opts.silent) {
-			write.call(std, ret, enc, cb2);
+		if (opts.silent) {
+			return typeof cbRet === 'boolean' ? cbRet : true;
 		}
+
+		var ret = Buffer.isBuffer(cbRet) || typeof cbRet === 'string' ? cbRet : str;
+		return write.call(std, ret, enc, cb2);
 	};
 
 	return function () {
