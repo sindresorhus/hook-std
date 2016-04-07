@@ -92,7 +92,7 @@ test.serial('passes through the return value of the underlying write call', t =>
 	t.false(process.stdout.write('foo'));
 	returnValue = true;
 	t.true(process.stdout.write('bar'));
-	t.same(log, [['foo'], ['bar']]);
+	t.deepEqual(log, [['foo'], ['bar']]);
 });
 
 test.serial('if silent, returns true by default', t => {
@@ -108,7 +108,7 @@ test.serial('if silent, returns true by default', t => {
 	});
 
 	t.true(process.stdout.write('foo'));
-	t.same(log, ['foo']);
+	t.deepEqual(log, ['foo']);
 });
 
 test.serial('if silent, callback can return a boolean', t => {
@@ -127,7 +127,7 @@ test.serial('if silent, callback can return a boolean', t => {
 	t.true(process.stdout.write('foo'));
 	returnValue = false;
 	t.false(process.stdout.write('bar'));
-	t.same(log, ['foo', 'bar']);
+	t.deepEqual(log, ['foo', 'bar']);
 });
 
 test.serial('callback can return a buffer', t => {
@@ -141,7 +141,7 @@ test.serial('callback can return a buffer', t => {
 
 	t.true(process.stdout.write('foo'));
 	t.true(process.stdout.write('bar'));
-	t.same(log, [[new Buffer('foo')], [new Buffer('bar')]]);
+	t.deepEqual(log, [[new Buffer('foo')], [new Buffer('bar')]]);
 });
 
 test.serial('callback receives encoding type', t => {
@@ -155,5 +155,5 @@ test.serial('callback receives encoding type', t => {
 
 	t.true(process.stdout.write('a9fe', 'hex'));
 	t.true(process.stdout.write('a234', 'hex'));
-	t.same(log, [['a9fe', 'hex'], ['a234', 'hex']]);
+	t.deepEqual(log, [['a9fe', 'hex'], ['a234', 'hex']]);
 });
