@@ -50,18 +50,18 @@ Returns a function that unhooks stderr.
 
 ##### silent
 
-Type: `boolean`  
+Type: `boolean`<br>
 Default: `false`
 
 Suppress stdout/stderr output.
 
 ##### callback
 
-Type: `function`
+Type: `Function`
 
 Receives stdout/stderr as the first argument. Return a string to modify it. Optionally, when in silent mode, you may return a `boolean` to influence the return value of `.write(...)`.
 
 
 ## License
 
-MIT © [Sindre Sorhus](http://sindresorhus.com)
+MIT © [Sindre Sorhus](https://sindresorhus.com)

@@ -1,11 +1,11 @@
 import test from 'ava';
-import fn from './';
+import m from './';
 
 const stdout = process.stdout;
 const stderr = process.stderr;
 
 function restore() {
-	// This craziness is required because these properties only have getters by default.
+	// this craziness is required because these properties only have getters by default
 	Object.defineProperties(process, {
 		stdout: {
 			configurable: true,
@@ -28,7 +28,7 @@ test.serial.cb('hook stdout & stderr', t => {
 
 	let i = 0;
 
-	const unhook = fn({silent: true}, str => {
+	const unhook = m({silent: true}, str => {
 		if (str === 'foo' || str === 'bar') {
 			t.pass();
 		}
@@ -46,7 +46,7 @@ test.serial.cb('hook stdout & stderr', t => {
 test.serial.cb('hook stdout', t => {
 	t.plan(1);
 
-	const unhook = fn.stdout({silent: true}, str => {
+	const unhook = m.stdout({silent: true}, str => {
 		t.is(str, 'foo');
 		unhook();
 		t.end();
@@ -58,7 +58,7 @@ test.serial.cb('hook stdout', t => {
 test.serial.cb('hook stderr', t => {
 	t.plan(1);
 
-	const unhook = fn.stderr({silent: true}, str => {
+	const unhook = m.stderr({silent: true}, str => {
 		t.is(str, 'foo');
 		unhook();
 		t.end();
@@ -87,7 +87,7 @@ test.serial('passes through the return value of the underlying write call', t =>
 		write: loggingWrite(log, () => returnValue)
 	};
 
-	fn.stdout(str => str);
+	m.stdout(str => str);
 
 	t.false(process.stdout.write('foo'));
 	returnValue = true;
@@ -102,7 +102,7 @@ test.serial('if silent, returns true by default', t => {
 		write: () => t.fail()
 	};
 
-	fn.stdout({silent: true}, str => {
+	m.stdout({silent: true}, str => {
 		log.push(str);
 		return str;
 	});
@@ -119,7 +119,7 @@ test.serial('if silent, callback can return a boolean', t => {
 		write: () => t.fail()
 	};
 
-	fn.stdout({silent: true}, str => {
+	m.stdout({silent: true}, str => {
 		log.push(str);
 		return returnValue;
 	});
@@ -137,7 +137,7 @@ test.serial('callback can return a buffer', t => {
 		write: loggingWrite(log, () => true)
 	};
 
-	fn.stdout(str => new Buffer(str));
+	m.stdout(str => new Buffer(str));
 
 	t.true(process.stdout.write('foo'));
 	t.true(process.stdout.write('bar'));
@@ -151,7 +151,7 @@ test.serial('callback receives encoding type', t => {
 		write: () => t.fail()
 	};
 
-	fn.stdout({silent: true}, loggingWrite(log, () => true));
+	m.stdout({silent: true}, loggingWrite(log, () => true));
 
 	t.true(process.stdout.write('a9fe', 'hex'));
 	t.true(process.stdout.write('a234', 'hex'));
