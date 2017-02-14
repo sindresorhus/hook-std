@@ -5,7 +5,7 @@ function hook(type, opts, cb) {
 		cb = opts;
 		opts = {};
 		opts.silent = true;
-	} else if (opts && opts.silent === undefined) {
+	} else if (opts && typeof opts.silent !== 'boolean') {
 		opts.silent = true;
 	}
 
