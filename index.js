@@ -4,9 +4,7 @@ function hook(type, opts, cb) {
 	if (typeof opts !== 'object') {
 		cb = opts;
 		opts = {};
-		opts.silent = true;
-	} else if (opts && typeof opts.silent !== 'boolean') {
-		opts.silent = true;
+		opts = Object.assign({silent: true}, opts);
 	}
 
 	const std = process[type];
@@ -14,6 +12,7 @@ function hook(type, opts, cb) {
 
 	std.write = (str, enc, cb2) => {
 		const cbRet = cb(str, enc);
+
 		if (opts.silent) {
 			return typeof cbRet === 'boolean' ? cbRet : true;
 		}
