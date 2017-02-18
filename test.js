@@ -1,11 +1,11 @@
 import test from 'ava';
-import m from './';
+import m from '.';
 
 const stdout = process.stdout;
 const stderr = process.stderr;
 
 function restore() {
-	// this craziness is required because these properties only have getters by default
+	// This craziness is required because these properties only have getters by default
 	Object.defineProperties(process, {
 		stdout: {
 			configurable: true,

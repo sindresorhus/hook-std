@@ -27,7 +27,7 @@ function hook(type, opts, cb) {
 	};
 }
 
-const x = module.exports = (opts, cb) => {
+module.exports = (opts, cb) => {
 	const unhookStdout = hook('stdout', opts, cb);
 	const unhookStderr = hook('stderr', opts, cb);
 
@@ -37,5 +37,5 @@ const x = module.exports = (opts, cb) => {
 	};
 };
 
-x.stdout = hook.bind(null, 'stdout');
-x.stderr = hook.bind(null, 'stderr');
+module.exports.stdout = hook.bind(null, 'stdout');
+module.exports.stderr = hook.bind(null, 'stderr');
