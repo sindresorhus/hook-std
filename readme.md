@@ -51,7 +51,7 @@ Returns a function that unhooks stderr.
 ##### silent
 
 Type: `boolean`<br>
-Default: `false`
+Default: `true`
 
 Suppress stdout/stderr output.
 

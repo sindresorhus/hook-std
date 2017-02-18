@@ -6,6 +6,8 @@ function hook(type, opts, cb) {
 		opts = {};
 	}
 
+	opts = Object.assign({silent: true}, opts);
+
 	const std = process[type];
 	const write = std.write;
 

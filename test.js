@@ -28,7 +28,7 @@ test.serial.cb('hook stdout & stderr', t => {
 
 	let i = 0;
 
-	const unhook = m({silent: true}, str => {
+	const unhook = m(str => {
 		if (str === 'foo' || str === 'bar') {
 			t.pass();
 		}
@@ -46,7 +46,7 @@ test.serial.cb('hook stdout & stderr', t => {
 test.serial.cb('hook stdout', t => {
 	t.plan(1);
 
-	const unhook = m.stdout({silent: true}, str => {
+	const unhook = m.stdout(str => {
 		t.is(str, 'foo');
 		unhook();
 		t.end();
@@ -58,7 +58,7 @@ test.serial.cb('hook stdout', t => {
 test.serial.cb('hook stderr', t => {
 	t.plan(1);
 
-	const unhook = m.stderr({silent: true}, str => {
+	const unhook = m.stderr(str => {
 		t.is(str, 'foo');
 		unhook();
 		t.end();
@@ -87,7 +87,7 @@ test.serial('passes through the return value of the underlying write call', t =>
 		write: loggingWrite(log, () => returnValue)
 	};
 
-	m.stdout(str => str);
+	m.stdout({silent: false}, str => str);
 
 	t.false(process.stdout.write('foo'));
 	returnValue = true;
@@ -102,7 +102,7 @@ test.serial('if silent, returns true by default', t => {
 		write: () => t.fail()
 	};
 
-	m.stdout({silent: true}, str => {
+	m.stdout(str => {
 		log.push(str);
 		return str;
 	});
@@ -119,7 +119,7 @@ test.serial('if silent, callback can return a boolean', t => {
 		write: () => t.fail()
 	};
 
-	m.stdout({silent: true}, str => {
+	m.stdout(str => {
 		log.push(str);
 		return returnValue;
 	});
@@ -137,7 +137,7 @@ test.serial('callback can return a buffer', t => {
 		write: loggingWrite(log, () => true)
 	};
 
-	m.stdout(str => new Buffer(str));
+	m.stdout({silent: false}, str => new Buffer(str));
 
 	t.true(process.stdout.write('foo'));
 	t.true(process.stdout.write('bar'));
@@ -151,9 +151,24 @@ test.serial('callback receives encoding type', t => {
 		write: () => t.fail()
 	};
 
-	m.stdout({silent: true}, loggingWrite(log, () => true));
+	m.stdout(loggingWrite(log, () => true));
 
 	t.true(process.stdout.write('a9fe', 'hex'));
 	t.true(process.stdout.write('a234', 'hex'));
 	t.deepEqual(log, [['a9fe', 'hex'], ['a234', 'hex']]);
+});
+
+test.serial('if no options are assigned, behave as silent', t => {
+	const log = [];
+	let returnValue = false;
+
+	process.stdout = {
+		write: loggingWrite(log, () => returnValue)
+	};
+
+	m.stdout(str => str);
+
+	process.stdout.write('foo');
+	returnValue = true;
+	t.deepEqual(log, []);
 });
