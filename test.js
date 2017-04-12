@@ -137,11 +137,11 @@ test.serial('callback can return a buffer', t => {
 		write: loggingWrite(log, () => true)
 	};
 
-	m.stdout({silent: false}, str => new Buffer(str));
+	m.stdout({silent: false}, str => Buffer.from(str));
 
 	t.true(process.stdout.write('foo'));
 	t.true(process.stdout.write('bar'));
-	t.deepEqual(log, [[new Buffer('foo')], [new Buffer('bar')]]);
+	t.deepEqual(log, [[Buffer.from('foo')], [Buffer.from('bar')]]);
 });
 
 test.serial('callback receives encoding type', t => {
