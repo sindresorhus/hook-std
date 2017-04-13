@@ -172,3 +172,44 @@ test.serial('if no options are assigned, behave as silent', t => {
 	returnValue = true;
 	t.deepEqual(log, []);
 });
+
+test.serial('if once option is true, only the first write is silent', t => {
+	let returnValue;
+	const log = [];
+
+	process.stdout = {
+		write: loggingWrite(log, () => returnValue)
+	};
+
+	m.stdout({once: true}, str => str);
+
+	process.stdout.write('foo');
+	process.stdout.write('bar');
+	process.stdout.write('unicorn');
+
+	t.deepEqual(log, [['bar'], ['unicorn']]);
+});
+
+test.serial('if once option is true and silent is false, hook prints the first write and std the next write ', t => {
+	let hookReturnValue;
+	const log = [];
+
+	process.stdout = {
+		write: loggingWrite(log, () => true)
+	};
+
+	m.stdout({silence: false, once: true}, str => {
+		hookReturnValue = str;
+		return str;
+	});
+
+	process.stdout.write('foo');
+	t.deepEqual(hookReturnValue, 'foo');
+	t.deepEqual(log, []);
+
+	hookReturnValue = false;
+
+	process.stdout.write('bar');
+	t.deepEqual(hookReturnValue, false);
+	t.deepEqual(log, [['bar']]);
+});
