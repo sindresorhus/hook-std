@@ -1,9 +1,5 @@
 'use strict';
 
-function unhook(std, write) {
-	std.write = write;
-}
-
 function hook(type, opts, cb) {
 	if (typeof opts !== 'object') {
 		cb = opts;
@@ -18,11 +14,15 @@ function hook(type, opts, cb) {
 	const std = process[type];
 	const write = std.write;
 
+	const unhook = () => {
+		std.write = write;
+	};
+
 	std.write = (str, enc, cb2) => {
 		const cbRet = cb(str, enc);
 
 		if (opts.once) {
-			unhook(std, write);
+			unhook();
 		}
 
 		if (opts.silent) {
@@ -33,7 +33,7 @@ function hook(type, opts, cb) {
 		return write.call(std, ret, enc, cb2);
 	};
 
-	return unhook.bind(null, std, write);
+	return unhook.bind(null);
 }
 
 module.exports = (opts, cb) => {
