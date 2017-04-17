@@ -33,7 +33,7 @@ function hook(type, opts, cb) {
 		return write.call(std, ret, enc, cb2);
 	};
 
-	return unhook.bind(null);
+	return unhook;
 }
 
 module.exports = (opts, cb) => {
