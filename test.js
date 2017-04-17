@@ -137,11 +137,11 @@ test.serial('callback can return a buffer', t => {
 		write: loggingWrite(log, () => true)
 	};
 
-	m.stdout({silent: false}, str => new Buffer(str));
+	m.stdout({silent: false}, str => Buffer.from(str));
 
 	t.true(process.stdout.write('foo'));
 	t.true(process.stdout.write('bar'));
-	t.deepEqual(log, [[new Buffer('foo')], [new Buffer('bar')]]);
+	t.deepEqual(log, [[Buffer.from('foo')], [Buffer.from('bar')]]);
 });
 
 test.serial('callback receives encoding type', t => {
@@ -171,4 +171,45 @@ test.serial('if no options are assigned, behave as silent', t => {
 	process.stdout.write('foo');
 	returnValue = true;
 	t.deepEqual(log, []);
+});
+
+test.serial('if once option is true, only the first write is silent', t => {
+	let returnValue;
+	const log = [];
+
+	process.stdout = {
+		write: loggingWrite(log, () => returnValue)
+	};
+
+	m.stdout({once: true}, str => str);
+
+	process.stdout.write('foo');
+	process.stdout.write('bar');
+	process.stdout.write('unicorn');
+
+	t.deepEqual(log, [['bar'], ['unicorn']]);
+});
+
+test.serial('if once option is true and silent is false, hook only prints the first write and std prints all writes', t => {
+	let hookReturnValue;
+	const log = [];
+
+	process.stdout = {
+		write: loggingWrite(log, () => true)
+	};
+
+	m.stdout({silent: false, once: true}, str => {
+		hookReturnValue = str;
+		return str;
+	});
+
+	process.stdout.write('foo');
+	t.deepEqual(hookReturnValue, 'foo');
+	t.deepEqual(log, [['foo']]);
+
+	hookReturnValue = false;
+
+	process.stdout.write('bar');
+	t.deepEqual(hookReturnValue, false);
+	t.deepEqual(log, [['foo'], ['bar']]);
 });

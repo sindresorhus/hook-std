@@ -55,6 +55,13 @@ Default: `true`
 
 Suppress stdout/stderr output.
 
+##### once
+
+Type: `boolean`<br>
+Default: `false`
+
+Automatically unhooks after the first call.
+
 ##### callback
 
 Type: `Function`
