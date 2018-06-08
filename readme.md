@@ -16,35 +16,49 @@ $ npm install --save hook-std
 const assert = require('assert');
 const hookStd = require('hook-std');
 
-const unhook = hookStd.stdout(output => {
+const promise = hookStd.stdout(output => {
+	promise.unhook();
+
+	assert.strictEqual(output.trim(), 'unicorn');
+});
+
+console.log('unicorn');
+await promise;
+```
+
+Unhook can also be done via callback:
+
+```js
+const promise = hookStd.stdout((output, unhook) => {
 	unhook();
 
 	assert.strictEqual(output.trim(), 'unicorn');
 });
 
 console.log('unicorn');
+await promise;
 ```
 
 
 ## API
 
-### hookStd([options], callback)
+### hookStd([options], transform)
 
 Hook stdout and stderr.
 
-Returns a function that unhooks stdout and stderr.
+Returns a `Promise` with a `unhook()` method which, when called, unhooks both stdout and stderr and resolves the `Promise` with an empty result.
 
-### hookStd.stdout([options], callback)
+### hookStd.stdout([options], transform)
 
 Hook stdout.
 
-Returns a function that unhooks stdout.
+Returns a `Promise` with a `unhook()` method which, when called, resolves the `Promise` with an empty result.
 
-### hookStd.stderr([options], callback)
+### hookStd.stderr([options], transform)
 
 Hook stderr.
 
-Returns a function that unhooks stderr.
+Returns a `Promise` with a `unhook()` method which, when called, resolves the `Promise` with an empty result.
 
 #### options
 
@@ -62,11 +76,11 @@ Default: `false`
 
 Automatically unhooks after the first call.
 
-##### callback
+##### transform
 
 Type: `Function`
 
-Receives stdout/stderr as the first argument. Return a string to modify it. Optionally, when in silent mode, you may return a `boolean` to influence the return value of `.write(...)`.
+Receives stdout/stderr as the first argument and the unhook method as the second argument. Return a string to modify it. Optionally, when in silent mode, you may return a `boolean` to influence the return value of `.write(...)`.
 
 
 ## License

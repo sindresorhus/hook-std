@@ -1,4 +1,4 @@
-import test from 'ava';
+import {serial as test} from 'ava';
 import m from '.';
 
 const stdout = process.stdout;
@@ -23,18 +23,18 @@ function restore() {
 test.beforeEach(restore);
 test.afterEach(restore);
 
-test.serial.cb('hook stdout & stderr', t => {
+test.cb('hook stdout & stderr', t => {
 	t.plan(2);
 
 	let i = 0;
 
-	const unhook = m(str => {
+	const promise = m(str => {
 		if (str === 'foo' || str === 'bar') {
 			t.pass();
 		}
 
 		if (++i === 2) {
-			unhook();
+			promise.unhook();
 			t.end();
 		}
 	});
@@ -43,24 +43,24 @@ test.serial.cb('hook stdout & stderr', t => {
 	process.stderr.write('bar');
 });
 
-test.serial.cb('hook stdout', t => {
+test.cb('hook stdout', t => {
 	t.plan(1);
 
-	const unhook = m.stdout(str => {
+	const promise = m.stdout(str => {
 		t.is(str, 'foo');
-		unhook();
+		promise.unhook();
 		t.end();
 	});
 
 	process.stdout.write('foo');
 });
 
-test.serial.cb('hook stderr', t => {
+test.cb('hook stderr', t => {
 	t.plan(1);
 
-	const unhook = m.stderr(str => {
+	const promise = m.stderr(str => {
 		t.is(str, 'foo');
-		unhook();
+		promise.unhook();
 		t.end();
 	});
 
@@ -79,7 +79,9 @@ function loggingWrite(log, retVal) {
 	};
 }
 
-test.serial('passes through the return value of the underlying write call', t => {
+test('passes through the return value of the underlying write call', t => {
+	t.plan(3);
+
 	const log = [];
 	let returnValue = false;
 
@@ -95,7 +97,8 @@ test.serial('passes through the return value of the underlying write call', t =>
 	t.deepEqual(log, [['foo'], ['bar']]);
 });
 
-test.serial('if silent, returns true by default', t => {
+test('if silent, returns true by default', t => {
+	t.plan(2);
 	const log = [];
 
 	process.stdout = {
@@ -111,7 +114,8 @@ test.serial('if silent, returns true by default', t => {
 	t.deepEqual(log, ['foo']);
 });
 
-test.serial('if silent, callback can return a boolean', t => {
+test('if silent, callback can return a boolean', t => {
+	t.plan(3);
 	const log = [];
 	let returnValue = true;
 
@@ -130,7 +134,8 @@ test.serial('if silent, callback can return a boolean', t => {
 	t.deepEqual(log, ['foo', 'bar']);
 });
 
-test.serial('callback can return a buffer', t => {
+test('callback can return a buffer', t => {
+	t.plan(3);
 	const log = [];
 
 	process.stdout = {
@@ -144,21 +149,8 @@ test.serial('callback can return a buffer', t => {
 	t.deepEqual(log, [[Buffer.from('foo')], [Buffer.from('bar')]]);
 });
 
-test.serial('callback receives encoding type', t => {
-	const log = [];
-
-	process.stdout = {
-		write: () => t.fail()
-	};
-
-	m.stdout(loggingWrite(log, () => true));
-
-	t.true(process.stdout.write('a9fe', 'hex'));
-	t.true(process.stdout.write('a234', 'hex'));
-	t.deepEqual(log, [['a9fe', 'hex'], ['a234', 'hex']]);
-});
-
-test.serial('if no options are assigned, behave as silent', t => {
+test('if no options are assigned, behave as silent', t => {
+	t.plan(1);
 	const log = [];
 	let returnValue = false;
 
@@ -173,7 +165,8 @@ test.serial('if no options are assigned, behave as silent', t => {
 	t.deepEqual(log, []);
 });
 
-test.serial('if once option is true, only the first write is silent', t => {
+test('if once option is true, only the first write is silent', t => {
+	t.plan(1);
 	let returnValue;
 	const log = [];
 
@@ -190,7 +183,8 @@ test.serial('if once option is true, only the first write is silent', t => {
 	t.deepEqual(log, [['bar'], ['unicorn']]);
 });
 
-test.serial('if once option is true and silent is false, hook only prints the first write and std prints all writes', t => {
+test('if once option is true and silent is false, hook only prints the first write and std prints all writes', t => {
+	t.plan(4);
 	let hookReturnValue;
 	const log = [];
 
@@ -212,4 +206,86 @@ test.serial('if once option is true and silent is false, hook only prints the fi
 	process.stdout.write('bar');
 	t.deepEqual(hookReturnValue, false);
 	t.deepEqual(log, [['foo'], ['bar']]);
+});
+
+test('output is converted to string', t => {
+	t.plan(4);
+	const log = [];
+
+	m.stdout(str => log.push(str));
+
+	process.stdout.write('foo');
+	t.deepEqual(log, ['foo']);
+
+	process.stdout.write(123);
+	t.deepEqual(log, ['foo', '123']);
+
+	process.stdout.write({});
+	t.deepEqual(log, ['foo', '123', '[object Object]']);
+
+	process.stdout.write(true);
+	t.deepEqual(log, ['foo', '123', '[object Object]', 'true']);
+});
+
+test('string returned by callback is converted to correct encoding', t => {
+	t.plan(2);
+
+	process.stdout = {
+		write: output => output
+	};
+
+	m.stdout({silent: false}, () => 'tést');
+
+	t.is(process.stdout.write('666f6f', 'hex'), '74c3a97374');
+	t.is(process.stdout.write('666f6f', 'ascii'), 'tC)st');
+});
+
+test('promise resolves when stdout & stderr are hooked and released via promise unhook method', async t => {
+	t.plan(1);
+	const log = [];
+
+	const promise = m(str => log.push(str));
+
+	process.stdout.write('foo');
+	process.stderr.write('bar');
+	t.deepEqual(log, ['foo', 'bar']);
+
+	promise.unhook();
+	await promise;
+});
+
+test('promise resolves when stdout & stderr are hooked and released via callback', async t => {
+	t.plan(1);
+	const log = [];
+
+	const promise = m((str, unhook) => {
+		log.push(str);
+		unhook();
+	});
+
+	process.stdout.write('foo');
+	process.stderr.write('bar');
+	t.deepEqual(log, ['foo', 'bar']);
+
+	await promise;
+});
+
+test('promise resolves when stdout is released via promise unhook method', async t => {
+	t.plan(1);
+	const promise = m.stdout(str => {
+		t.is(str, 'foo');
+	});
+	process.stdout.write('foo');
+	promise.unhook();
+	await promise;
+});
+
+test('promise resolves when stderr is released via promise unhook method', async t => {
+	t.plan(1);
+	const promise = m.stderr(str => {
+		t.is(str, 'foo');
+	});
+	process.stderr.write('foo');
+	promise.unhook();
+	await promise;
 });
