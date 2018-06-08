@@ -1,12 +1,12 @@
 # hook-std [![Build Status](https://travis-ci.org/sindresorhus/hook-std.svg?branch=master)](https://travis-ci.org/sindresorhus/hook-std)
 
-> Hook and modify stdout/stderr
+> Hook and modify stdout and stderr
 
 
 ## Install
 
 ```
-$ npm install --save hook-std
+$ npm install hook-std
 ```
 
 
@@ -18,7 +18,6 @@ const hookStd = require('hook-std');
 
 const promise = hookStd.stdout(output => {
 	promise.unhook();
-
 	assert.strictEqual(output.trim(), 'unicorn');
 });
 
@@ -26,12 +25,11 @@ console.log('unicorn');
 await promise;
 ```
 
-Unhook can also be done via callback:
+You can also unhook using the second `transform` method parameter:
 
 ```js
 const promise = hookStd.stdout((output, unhook) => {
 	unhook();
-
 	assert.strictEqual(output.trim(), 'unicorn');
 });
 

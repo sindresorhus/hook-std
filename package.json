@@ -1,42 +1,42 @@
 {
-  "name": "hook-std",
-  "version": "0.4.0",
-  "description": "Hook and modify stdout/stderr",
-  "license": "MIT",
-  "repository": "sindresorhus/hook-std",
-  "author": {
-    "name": "Sindre Sorhus",
-    "email": "sindresorhus@gmail.com",
-    "url": "sindresorhus.com"
-  },
-  "engines": {
-    "node": ">=4"
-  },
-  "scripts": {
-    "test": "xo && ava"
-  },
-  "files": [
-    "index.js"
-  ],
-  "keywords": [
-    "hook",
-    "intercept",
-    "capture",
-    "modify",
-    "change",
-    "test",
-    "assert",
-    "check",
-    "std",
-    "stdio",
-    "stdout",
-    "stderr",
-    "console",
-    "log",
-    "process"
-  ],
-  "devDependencies": {
-    "ava": "*",
-    "xo": "*"
-  }
+	"name": "hook-std",
+	"version": "0.4.0",
+	"description": "Hook and modify stdout/stderr",
+	"license": "MIT",
+	"repository": "sindresorhus/hook-std",
+	"author": {
+		"name": "Sindre Sorhus",
+		"email": "sindresorhus@gmail.com",
+		"url": "sindresorhus.com"
+	},
+	"engines": {
+		"node": ">=6"
+	},
+	"scripts": {
+		"test": "xo && ava"
+	},
+	"files": [
+		"index.js"
+	],
+	"keywords": [
+		"hook",
+		"intercept",
+		"capture",
+		"modify",
+		"change",
+		"test",
+		"assert",
+		"check",
+		"std",
+		"stdio",
+		"stdout",
+		"stderr",
+		"console",
+		"log",
+		"process"
+	],
+	"devDependencies": {
+		"ava": "*",
+		"xo": "*"
+	}
 }

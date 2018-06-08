@@ -15,7 +15,7 @@ const hook = (type, opts, transform) => {
 
 	const promise = new Promise(resolve => {
 		const std = process[type];
-		const write = std.write;
+		const {write} = std;
 
 		const unhook = () => {
 			std.write = write;
@@ -51,11 +51,13 @@ const hook = (type, opts, transform) => {
 module.exports = (opts, transform) => {
 	const stdoutPromise = hook('stdout', opts, transform);
 	const stderrPromise = hook('stderr', opts, transform);
+
 	const promise = Promise.all([stdoutPromise, stderrPromise]);
 	promise.unhook = () => {
 		stdoutPromise.unhook();
 		stderrPromise.unhook();
 	};
+
 	return promise;
 };
 

@@ -1,8 +1,7 @@
 import {serial as test} from 'ava';
 import m from '.';
 
-const stdout = process.stdout;
-const stderr = process.stderr;
+const {stdout, stderr} = process;
 
 function restore() {
 	// This craziness is required because these properties only have getters by default
