@@ -33,11 +33,15 @@ const hook = (type, opts, transform) => {
 				return typeof cbRet === 'boolean' ? cbRet : true;
 			}
 
+			let ret;
+
 			if (typeof cbRet === 'string') {
-				return write.call(std, Buffer.from(cbRet).toString(enc), enc, cb);
+				ret = typeof enc === 'string' ? Buffer.from(cbRet).toString(enc) : cbRet;
 			}
 
-			return write.call(std, Buffer.isBuffer(cbRet) ? cbRet : output, enc, cb);
+			ret = ret || (Buffer.isBuffer(cbRet) ? cbRet : output);
+
+			return write.call(std, ret, enc, cb);
 		};
 
 		unhookFn = unhook;
