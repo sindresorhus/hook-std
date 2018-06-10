@@ -235,8 +235,23 @@ test('string returned by callback is converted to correct encoding', t => {
 
 	m.stdout({silent: false}, () => 'tést');
 
-	t.is(process.stdout.write('666f6f', 'hex'), '74c3a97374');
-	t.is(process.stdout.write('666f6f', 'ascii'), 'tC)st');
+	t.is(process.stdout.write('foo', 'hex'), '74c3a97374');
+	t.is(process.stdout.write('bar', 'ascii'), 'tC)st');
+});
+
+test('string returned by callback is not converted if encoding is invalid', t => {
+	t.plan(4);
+
+	process.stdout = {
+		write: output => output
+	};
+
+	m.stdout({silent: false}, () => 'tést');
+
+	t.is(process.stdout.write('foo', 123), 'tést');
+	t.is(process.stdout.write('bar', null), 'tést');
+	t.is(process.stdout.write('ping', {}), 'tést');
+	t.is(process.stdout.write('pong', () => {}), 'tést');
 });
 
 test('promise resolves when stdout & stderr are hooked and released via promise unhook method', async t => {
