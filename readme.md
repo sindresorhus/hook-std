@@ -74,7 +74,7 @@ Default: `false`
 
 Automatically unhooks after the first call.
 
-##### transform
+#### transform
 
 Type: `Function`
 
