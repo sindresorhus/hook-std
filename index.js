@@ -1,6 +1,6 @@
 'use strict';
 
-const hook = (std, opts, transform) => {
+const hook = (stream, opts, transform) => {
 	if (typeof opts !== 'object') {
 		transform = opts;
 		opts = {};
@@ -14,14 +14,14 @@ const hook = (std, opts, transform) => {
 	let unhookFn;
 
 	const promise = new Promise(resolve => {
-		const {write} = std;
+		const {write} = stream;
 
 		const unhook = () => {
-			std.write = write;
+			stream.write = write;
 			resolve();
 		};
 
-		std.write = (output, enc, cb) => {
+		stream.write = (output, enc, cb) => {
 			const cbRet = transform(String(output), unhook);
 
 			if (opts.once) {
@@ -40,7 +40,7 @@ const hook = (std, opts, transform) => {
 
 			ret = ret || (Buffer.isBuffer(cbRet) ? cbRet : output);
 
-			return write.call(std, ret, enc, cb);
+			return write.call(stream, ret, enc, cb);
 		};
 
 		unhookFn = unhook;
