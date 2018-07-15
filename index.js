@@ -1,6 +1,8 @@
 'use strict';
 
-const hook = (type, opts, transform) => {
+const arrify = require('arrify');
+
+const hook = (std, opts, transform) => {
 	if (typeof opts !== 'object') {
 		transform = opts;
 		opts = {};
@@ -14,7 +16,6 @@ const hook = (type, opts, transform) => {
 	let unhookFn;
 
 	const promise = new Promise(resolve => {
-		const std = process[type];
 		const {write} = std;
 
 		const unhook = () => {
@@ -53,17 +54,18 @@ const hook = (type, opts, transform) => {
 };
 
 module.exports = (opts, transform) => {
-	const stdoutPromise = hook('stdout', opts, transform);
-	const stderrPromise = hook('stderr', opts, transform);
+	const streams = opts.streams ? arrify(opts.streams) : [process.stdout, process.stderr];
+	const streamPromises = streams.map(stream => hook(stream, opts, transform));
 
-	const promise = Promise.all([stdoutPromise, stderrPromise]);
+	const promise = Promise.all(streamPromises);
 	promise.unhook = () => {
-		stdoutPromise.unhook();
-		stderrPromise.unhook();
+		for (const streamPromise of streamPromises) {
+			streamPromise.unhook();
+		}
 	};
 
 	return promise;
 };
 
-module.exports.stdout = hook.bind(null, 'stdout');
-module.exports.stderr = hook.bind(null, 'stderr');
+module.exports.stdout = (...args) => hook(process.stdout, ...args);
+module.exports.stderr = (...args) => hook(process.stderr, ...args);

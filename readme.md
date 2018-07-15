@@ -42,7 +42,7 @@ await promise;
 
 ### hookStd([options], transform)
 
-Hook stdout and stderr.
+Hook streams in [streams option](#streams), by default stdout and stderr.
 
 Returns a `Promise` with a `unhook()` method which, when called, unhooks both stdout and stderr and resolves the `Promise` with an empty result.
 
@@ -79,6 +79,13 @@ Automatically unhooks after the first call.
 Type: `Function`
 
 Receives stdout/stderr as the first argument and the unhook method as the second argument. Return a string to modify it. Optionally, when in silent mode, you may return a `boolean` to influence the return value of `.write(...)`.
+
+##### streams
+
+Type: `Array`, `stream.Writable`<br>
+Default: `[process.stdout, process.stderr]`
+
+[Writable streams](https://nodejs.org/api/stream.html#stream_writable_streams) to hook.
 
 
 ## License

@@ -66,6 +66,26 @@ test.cb('hook stderr', t => {
 	process.stderr.write('foo');
 });
 
+test.cb('hook custom stream', t => {
+	t.plan(1);
+	const streams = [{write: () => {}}];
+
+	let i = 0;
+
+	const promise = m({streams}, str => {
+		if (str === 'foo') {
+			t.pass();
+		}
+
+		if (++i === 1) {
+			promise.unhook();
+			t.end();
+		}
+	});
+
+	streams[0].write('foo');
+});
+
 function loggingWrite(log, retVal) {
 	return (...items) => {
 		while (items[items.length - 1] === undefined) {
@@ -301,5 +321,22 @@ test('promise resolves when stderr is released via promise unhook method', async
 	});
 	process.stderr.write('foo');
 	promise.unhook();
+	await promise;
+});
+
+test('promise resolves when streams are hooked and released via callback', async t => {
+	t.plan(1);
+	const log = [];
+	const streams = [{write: () => {}}, {write: () => {}}];
+
+	const promise = m({streams}, (str, unhook) => {
+		log.push(str);
+		unhook();
+	});
+
+	streams[0].write('foo');
+	streams[1].write('bar');
+	t.deepEqual(log, ['foo', 'bar']);
+
 	await promise;
 });
