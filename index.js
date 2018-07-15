@@ -1,7 +1,5 @@
 'use strict';
 
-const arrify = require('arrify');
-
 const hook = (std, opts, transform) => {
 	if (typeof opts !== 'object') {
 		transform = opts;
@@ -54,7 +52,7 @@ const hook = (std, opts, transform) => {
 };
 
 module.exports = (opts, transform) => {
-	const streams = opts.streams ? arrify(opts.streams) : [process.stdout, process.stderr];
+	const streams = opts.streams || [process.stdout, process.stderr];
 	const streamPromises = streams.map(stream => hook(stream, opts, transform));
 
 	const promise = Promise.all(streamPromises);

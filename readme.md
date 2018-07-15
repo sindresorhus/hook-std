@@ -82,7 +82,7 @@ Receives stdout/stderr as the first argument and the unhook method as the second
 
 ##### streams
 
-Type: `Array`, `stream.Writable`<br>
+Type: `stream.Writable[]`<br>
 Default: `[process.stdout, process.stderr]`
 
 [Writable streams](https://nodejs.org/api/stream.html#stream_writable_streams) to hook.

@@ -35,9 +35,6 @@
 		"log",
 		"process"
 	],
-	"dependencies": {
-		"arrify": "^1.0.1"
-	},
 	"devDependencies": {
 		"ava": "*",
 		"xo": "*"
