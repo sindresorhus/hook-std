@@ -1,6 +1,6 @@
 'use strict';
 
-const hook = (type, opts, transform) => {
+const hook = (stream, opts, transform) => {
 	if (typeof opts !== 'object') {
 		transform = opts;
 		opts = {};
@@ -14,15 +14,14 @@ const hook = (type, opts, transform) => {
 	let unhookFn;
 
 	const promise = new Promise(resolve => {
-		const std = process[type];
-		const {write} = std;
+		const {write} = stream;
 
 		const unhook = () => {
-			std.write = write;
+			stream.write = write;
 			resolve();
 		};
 
-		std.write = (output, enc, cb) => {
+		stream.write = (output, enc, cb) => {
 			const cbRet = transform(String(output), unhook);
 
 			if (opts.once) {
@@ -41,7 +40,7 @@ const hook = (type, opts, transform) => {
 
 			ret = ret || (Buffer.isBuffer(cbRet) ? cbRet : output);
 
-			return write.call(std, ret, enc, cb);
+			return write.call(stream, ret, enc, cb);
 		};
 
 		unhookFn = unhook;
@@ -53,17 +52,18 @@ const hook = (type, opts, transform) => {
 };
 
 module.exports = (opts, transform) => {
-	const stdoutPromise = hook('stdout', opts, transform);
-	const stderrPromise = hook('stderr', opts, transform);
+	const streams = opts.streams || [process.stdout, process.stderr];
+	const streamPromises = streams.map(stream => hook(stream, opts, transform));
 
-	const promise = Promise.all([stdoutPromise, stderrPromise]);
+	const promise = Promise.all(streamPromises);
 	promise.unhook = () => {
-		stdoutPromise.unhook();
-		stderrPromise.unhook();
+		for (const streamPromise of streamPromises) {
+			streamPromise.unhook();
+		}
 	};
 
 	return promise;
 };
 
-module.exports.stdout = hook.bind(null, 'stdout');
-module.exports.stderr = hook.bind(null, 'stderr');
+module.exports.stdout = (...args) => hook(process.stdout, ...args);
+module.exports.stderr = (...args) => hook(process.stderr, ...args);
