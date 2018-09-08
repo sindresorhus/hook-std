@@ -19,9 +19,9 @@ export type Unhook = () => void;
  * 
  * @param output - string from stream output.
  * @param unhook - method when called unhooks from stream.
- * @returns void or boolean to influence the return value of .write(...).
+ * @returns boolean to influence the return value of .write(...), buffer or string to modify it, or void.
  */
-export type Transform = (output: string, unhook: Unhook) => boolean | void;
+export type Transform = (output: string, unhook: Unhook) => boolean | buffer | string | void;
 
 export interface Options {
 	/**
