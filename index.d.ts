@@ -2,7 +2,7 @@
 // Project: https://github.com/sindresorhus/hook-std
 // Definitions by: Alex Miller <https://github.com/codex->
 
-import { Writable } from 'stream';
+import {Writable} from 'stream';
 
 /**
  * unhook() method which, when called, unhooks from a stream
@@ -21,7 +21,7 @@ export type Unhook = () => void;
  * @param unhook - method when called unhooks from stream.
  * @returns void or boolean to influence the return value of .write(...).
  */
-export type Transform = (output: string, unhook: Unhook) => void | boolean;
+export type Transform = (output: string, unhook: Unhook) => boolean | void;
 
 export interface Options {
 	/**
@@ -65,6 +65,7 @@ export function stdout(transform: Transform): PromiseUnhook;
 /**
  * Hooks stdout or alternatively the streams in options.
  * 
+ * @param opts
  * @param transform - the transform function.
  * @returns a Promise with a unhook() method which, when called, unhooks
  * the streams and resolves the Promise.
@@ -83,6 +84,7 @@ export function stderr(transform: Transform): PromiseUnhook;
 /**
  * Hooks stderr or alternatively the streams in options.
  * 
+ * @param opts
  * @param transform - the transform function.
  * @returns a Promise with a unhook() method which, when called, unhooks
  * the streams and resolves the Promise.
