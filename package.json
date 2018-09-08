@@ -37,9 +37,9 @@
 		"process"
 	],
 	"devDependencies": {
-		"@types/node": "^10.9.4",
+		"@types/node": "*",
 		"ava": "*",
-		"tsd-check": "^0.2.1",
+		"tsd-check": "*",
 		"xo": "*"
 	}
 }
