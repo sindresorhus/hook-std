@@ -1,5 +1,5 @@
 import {expectType} from 'tsd-check';
-import {Unhook, Transform, Options, PromiseUnhook, stdout, stderr} from '.';
+import hookStd, {DefaultOptions, HookPromise, Options, stderr, stdout, Unhook, Transform} from '.';
 
 expectType<Unhook>(() => null);
 expectType<Unhook>(() => undefined);
@@ -18,19 +18,20 @@ expectType<Transform>((output: string, unhook: Unhook) => true);
 
 expectType<Options>({silent: true});
 expectType<Options>({once: true});
-expectType<Options>({streams: [process.stdout, process.stderr]});
-expectType<Options>({silent: true, once: true, streams: [process.stdout]});
+expectType<Options>({silent: true, once: true});
 
-expectType<PromiseUnhook>(stdout(() => null));
-expectType<PromiseUnhook>(stdout({silent: false}, () => null));
-expectType<PromiseUnhook>(stdout(() => true));
-expectType<PromiseUnhook>(stdout({silent: false}, () => true));
-expectType<PromiseUnhook>(stderr(() => null));
-expectType<PromiseUnhook>(stderr({silent: false}, () => null));
-expectType<PromiseUnhook>(stderr(() => true));
-expectType<PromiseUnhook>(stderr({silent: false}, () => true));
+expectType<DefaultOptions>({silent: true});
+expectType<DefaultOptions>({once: true});
+expectType<DefaultOptions>({streams: [process.stdout, process.stderr]});
+expectType<DefaultOptions>({silent: true, once: true, streams: [process.stdout]});
 
-expectType<(transform: Transform) => PromiseUnhook>(stdout)
-expectType<(opts: Options, transform: Transform) => PromiseUnhook>(stdout)
-expectType<(transform: Transform) => PromiseUnhook>(stderr)
-expectType<(opts: Options, transform: Transform) => PromiseUnhook>(stderr)
+expectType<HookPromise>(stdout(() => null));
+expectType<HookPromise>(stdout(() => true));
+expectType<HookPromise>(stderr(() => null));
+expectType<HookPromise>(stderr(() => true));
+
+expectType<(transform: Transform) => HookPromise>(stdout)
+
+expectType<(transform: Transform) => HookPromise>(stderr)
+
+expectType<(opts: Options, transform: Transform) => HookPromise>(hookStd)

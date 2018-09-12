@@ -5,21 +5,18 @@
 import {Writable} from 'stream';
 
 /**
- * unhook() method which, when called, unhooks from a stream
- * and resolves the Promise.
+ * `unhook()` method which, when called, unhooks from a stream and resolves the Promise.
  */
 export type Unhook = () => void;
 
 /**
- * Receives stream output as the first argument and the unhook method as the
- * second argument.
+ * Receives stream output as the first argument and the unhook method as the second argument.
  *
- * Optionally, when in silent mode, you may return a boolean to influence
- * the return value of .write(...).
+ * Optionally, when in silent mode, you may return a boolean to influence the return value of `.write(...)`.
  * 
- * @param output - string from stream output.
- * @param unhook - method when called unhooks from stream.
- * @returns boolean to influence the return value of .write(...), Buffer or string to modify it, or void.
+ * @param output - String from stream output.
+ * @param unhook - Method when called unhooks from stream.
+ * @returns a boolean to influence the return value of `.write(...)`, Buffer or string to modify it, or void.
  */
 export type Transform = (output: string, unhook: Unhook) => boolean | Buffer | string | void;
 
@@ -36,9 +33,11 @@ export interface Options {
 	 * @default false
 	 */
 	once?: boolean;
+}
+
+export interface DefaultOptions extends Options {
 	/**
-	 * Writable streams to hook. This can be useful for libraries allowing
-	 * users to configure a Writable Stream to write to.
+	 * Writable streams to hook. This can be useful for libraries allowing users to configure a Writable Stream to write to.
 	 *
 	 * @default [process.stdout, process.stderr]
 	 */
@@ -46,47 +45,33 @@ export interface Options {
 }
 
 /**
- * Promise with a unhook() method which, when called, resolves the Promise
- * with an empty result.
+ * Promise with a `unhook()` method which, when called, resolves the Promise with an empty result.
  */
-export interface PromiseUnhook extends Promise<any> {
+export interface HookPromise extends Promise<any> {
 	unhook: Unhook;
 }
 
 /**
  * Hooks stdout.
  * 
- * @param transform - the transform function.
- * @returns a Promise with a unhook() method which, when called, unhooks
- * the streams and resolves the Promise.
+ * @param transform
+ * @returns a Promise with a `unhook()` method which, when called, unhooks the streams and resolves the Promise.
  */
-export function stdout(transform: Transform): PromiseUnhook;
-
-/**
- * Hooks stdout or alternatively the streams in options.
- * 
- * @param opts
- * @param transform - the transform function.
- * @returns a Promise with a unhook() method which, when called, unhooks
- * the streams and resolves the Promise.
- */
-export function stdout(opts: Options, transform: Transform): PromiseUnhook;
+export function stdout(transform: Transform): HookPromise;
 
 /**
  * Hooks stderr.
  * 
- * @param transform - the transform function.
- * @returns a Promise with a unhook() method which, when called, unhooks
- * the streams and resolves the Promise.
+ * @param transform
+ * @returns a Promise with a `unhook()` method which, when called, unhooks the streams and resolves the Promise.
  */
-export function stderr(transform: Transform): PromiseUnhook;
+export function stderr(transform: Transform): HookPromise;
 
 /**
- * Hooks stderr or alternatively the streams in options.
- * 
- * @param opts
- * @param transform - the transform function.
- * @returns a Promise with a unhook() method which, when called, unhooks
- * the streams and resolves the Promise.
+ * Hooks streams in options or stdout & stderr if none are specified.
+ *
+ * @param options 
+ * @param transform 
+ * @returns a Promise with a `unhook()` method which, when called, unhooks the streams and resolves the Promise.
  */
-export function stderr(opts: Options, transform: Transform): PromiseUnhook;
+export default function hookStd(options: DefaultOptions, transform: Transform): HookPromise;
