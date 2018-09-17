@@ -31,7 +31,10 @@ expectType<HookPromise>(stderr(() => null));
 expectType<HookPromise>(stderr(() => true));
 
 expectType<(transform: Transform) => HookPromise>(stdout)
+expectType<(options: Options, transform: Transform) => HookPromise>(stdout)
 
 expectType<(transform: Transform) => HookPromise>(stderr)
+expectType<(options: Options, transform: Transform) => HookPromise>(stderr)
 
+expectType<(transform: Transform) => HookPromise>(hookStd)
 expectType<(opts: Options, transform: Transform) => HookPromise>(hookStd)
