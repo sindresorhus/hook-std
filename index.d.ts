@@ -91,7 +91,7 @@ export function stderr(options: Options, transform: Transform): HookPromise;
  * @param transform
  * @returns a Promise with a `unhook()` method which, when called, unhooks the streams and resolves the Promise.
  */
-export default function hookStd(transform: Transform): HookPromise;
+declare function hookStd(transform: Transform): HookPromise;
 
 /**
  * Hooks streams in options or stdout & stderr if none are specified.
@@ -100,4 +100,6 @@ export default function hookStd(transform: Transform): HookPromise;
  * @param transform
  * @returns a Promise with a `unhook()` method which, when called, unhooks the streams and resolves the Promise.
  */
-export default function hookStd(options: DefaultOptions, transform: Transform): HookPromise;
+declare function hookStd(options: DefaultOptions, transform: Transform): HookPromise;
+
+export default hookStd;
