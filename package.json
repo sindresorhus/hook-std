@@ -36,8 +36,10 @@
 		"log",
 		"process"
 	],
+	"dependencies": {
+		"@types/node": "*"
+	},
 	"devDependencies": {
-		"@types/node": "*",
 		"ava": "*",
 		"tsd-check": "*",
 		"xo": "*"
