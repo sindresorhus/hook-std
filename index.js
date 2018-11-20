@@ -51,7 +51,7 @@ const hook = (stream, opts, transform) => {
 	return promise;
 };
 
-module.exports = (opts, transform) => {
+const hookStd = (opts, transform) => {
 	const streams = opts.streams || [process.stdout, process.stderr];
 	const streamPromises = streams.map(stream => hook(stream, opts, transform));
 
@@ -65,5 +65,11 @@ module.exports = (opts, transform) => {
 	return promise;
 };
 
-module.exports.stdout = (...args) => hook(process.stdout, ...args);
-module.exports.stderr = (...args) => hook(process.stderr, ...args);
+hookStd.stdout = (...args) => hook(process.stdout, ...args);
+hookStd.stderr = (...args) => hook(process.stderr, ...args);
+
+module.exports.stdout = hookStd.stdout;
+module.exports.stderr = hookStd.stderr;
+
+module.exports.default = hookStd;
+module.exports = hookStd;
