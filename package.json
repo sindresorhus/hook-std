@@ -36,12 +36,10 @@
 		"log",
 		"process"
 	],
-	"dependencies": {
-		"@types/node": "*"
-	},
 	"devDependencies": {
-		"ava": "*",
-		"tsd-check": "*",
-		"xo": "*"
+		"@types/node": "^10.12.9",
+		"ava": "^0.25.0",
+		"tsd-check": "^0.2.1",
+		"xo": "^0.23.0"
 	}
 }

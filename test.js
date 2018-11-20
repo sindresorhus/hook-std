@@ -1,5 +1,5 @@
 import {serial as test} from 'ava';
-import m from '.';
+import hookStd from '.';
 
 const {stdout, stderr} = process;
 
@@ -27,7 +27,7 @@ test.cb('hook stdout & stderr', t => {
 
 	let i = 0;
 
-	const promise = m(str => {
+	const promise = hookStd(str => {
 		if (str === 'foo' || str === 'bar') {
 			t.pass();
 		}
@@ -45,7 +45,7 @@ test.cb('hook stdout & stderr', t => {
 test.cb('hook stdout', t => {
 	t.plan(1);
 
-	const promise = m.stdout(str => {
+	const promise = hookStd.stdout(str => {
 		t.is(str, 'foo');
 		promise.unhook();
 		t.end();
@@ -57,7 +57,7 @@ test.cb('hook stdout', t => {
 test.cb('hook stderr', t => {
 	t.plan(1);
 
-	const promise = m.stderr(str => {
+	const promise = hookStd.stderr(str => {
 		t.is(str, 'foo');
 		promise.unhook();
 		t.end();
@@ -72,7 +72,7 @@ test.cb('hook custom stream', t => {
 
 	let i = 0;
 
-	const promise = m({streams}, str => {
+	const promise = hookStd({streams}, str => {
 		if (str === 'foo') {
 			t.pass();
 		}
@@ -108,7 +108,7 @@ test('passes through the return value of the underlying write call', t => {
 		write: loggingWrite(log, () => returnValue)
 	};
 
-	m.stdout({silent: false}, str => str);
+	hookStd.stdout({silent: false}, str => str);
 
 	t.false(process.stdout.write('foo'));
 	returnValue = true;
@@ -124,7 +124,7 @@ test('if silent, returns true by default', t => {
 		write: () => t.fail()
 	};
 
-	m.stdout(str => {
+	hookStd.stdout(str => {
 		log.push(str);
 		return str;
 	});
@@ -142,7 +142,7 @@ test('if silent, callback can return a boolean', t => {
 		write: () => t.fail()
 	};
 
-	m.stdout(str => {
+	hookStd.stdout(str => {
 		log.push(str);
 		return returnValue;
 	});
@@ -161,7 +161,7 @@ test('callback can return a buffer', t => {
 		write: loggingWrite(log, () => true)
 	};
 
-	m.stdout({silent: false}, str => Buffer.from(str));
+	hookStd.stdout({silent: false}, str => Buffer.from(str));
 
 	t.true(process.stdout.write('foo'));
 	t.true(process.stdout.write('bar'));
@@ -177,7 +177,7 @@ test('if no options are assigned, behave as silent', t => {
 		write: loggingWrite(log, () => returnValue)
 	};
 
-	m.stdout(str => str);
+	hookStd.stdout(str => str);
 
 	process.stdout.write('foo');
 	returnValue = true;
@@ -193,7 +193,7 @@ test('if once option is true, only the first write is silent', t => {
 		write: loggingWrite(log, () => returnValue)
 	};
 
-	m.stdout({once: true}, str => str);
+	hookStd.stdout({once: true}, str => str);
 
 	process.stdout.write('foo');
 	process.stdout.write('bar');
@@ -211,7 +211,7 @@ test('if once option is true and silent is false, hook only prints the first wri
 		write: loggingWrite(log, () => true)
 	};
 
-	m.stdout({silent: false, once: true}, str => {
+	hookStd.stdout({silent: false, once: true}, str => {
 		hookReturnValue = str;
 		return str;
 	});
@@ -231,7 +231,7 @@ test('output is converted to string', t => {
 	t.plan(4);
 	const log = [];
 
-	m.stdout(str => log.push(str));
+	hookStd.stdout(str => log.push(str));
 
 	process.stdout.write('foo');
 	t.deepEqual(log, ['foo']);
@@ -253,7 +253,7 @@ test('string returned by callback is converted to correct encoding', t => {
 		write: output => output
 	};
 
-	m.stdout({silent: false}, () => 'tést');
+	hookStd.stdout({silent: false}, () => 'tést');
 
 	t.is(process.stdout.write('foo', 'hex'), '74c3a97374');
 	t.is(process.stdout.write('bar', 'ascii'), 'tC)st');
@@ -266,7 +266,7 @@ test('string returned by callback is not converted if encoding is invalid', t =>
 		write: output => output
 	};
 
-	m.stdout({silent: false}, () => 'tést');
+	hookStd.stdout({silent: false}, () => 'tést');
 
 	t.is(process.stdout.write('foo', 123), 'tést');
 	t.is(process.stdout.write('bar', null), 'tést');
@@ -278,7 +278,7 @@ test('promise resolves when stdout & stderr are hooked and released via promise 
 	t.plan(1);
 	const log = [];
 
-	const promise = m(str => log.push(str));
+	const promise = hookStd(str => log.push(str));
 
 	process.stdout.write('foo');
 	process.stderr.write('bar');
@@ -292,7 +292,7 @@ test('promise resolves when stdout & stderr are hooked and released via callback
 	t.plan(1);
 	const log = [];
 
-	const promise = m((str, unhook) => {
+	const promise = hookStd((str, unhook) => {
 		log.push(str);
 		unhook();
 	});
@@ -306,7 +306,7 @@ test('promise resolves when stdout & stderr are hooked and released via callback
 
 test('promise resolves when stdout is released via promise unhook method', async t => {
 	t.plan(1);
-	const promise = m.stdout(str => {
+	const promise = hookStd.stdout(str => {
 		t.is(str, 'foo');
 	});
 	process.stdout.write('foo');
@@ -316,7 +316,7 @@ test('promise resolves when stdout is released via promise unhook method', async
 
 test('promise resolves when stderr is released via promise unhook method', async t => {
 	t.plan(1);
-	const promise = m.stderr(str => {
+	const promise = hookStd.stderr(str => {
 		t.is(str, 'foo');
 	});
 	process.stderr.write('foo');
@@ -329,7 +329,7 @@ test('promise resolves when streams are hooked and released via callback', async
 	const log = [];
 	const streams = [{write: () => {}}, {write: () => {}}];
 
-	const promise = m({streams}, (str, unhook) => {
+	const promise = hookStd({streams}, (str, unhook) => {
 		log.push(str);
 		unhook();
 	});

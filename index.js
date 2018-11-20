@@ -1,15 +1,15 @@
 'use strict';
 
-const hook = (stream, opts, transform) => {
-	if (typeof opts !== 'object') {
-		transform = opts;
-		opts = {};
+const hook = (stream, options, transform) => {
+	if (typeof options !== 'object') {
+		transform = options;
+		options = {};
 	}
 
-	opts = Object.assign({
+	options = Object.assign({
 		silent: true,
 		once: false
-	}, opts);
+	}, options);
 
 	let unhookFn;
 
@@ -24,16 +24,15 @@ const hook = (stream, opts, transform) => {
 		stream.write = (output, enc, cb) => {
 			const cbRet = transform(String(output), unhook);
 
-			if (opts.once) {
+			if (options.once) {
 				unhook();
 			}
 
-			if (opts.silent) {
+			if (options.silent) {
 				return typeof cbRet === 'boolean' ? cbRet : true;
 			}
 
 			let ret;
-
 			if (typeof cbRet === 'string') {
 				ret = typeof enc === 'string' ? Buffer.from(cbRet).toString(enc) : cbRet;
 			}
@@ -51,9 +50,9 @@ const hook = (stream, opts, transform) => {
 	return promise;
 };
 
-const hookStd = (opts, transform) => {
-	const streams = opts.streams || [process.stdout, process.stderr];
-	const streamPromises = streams.map(stream => hook(stream, opts, transform));
+const hookStd = (options, transform) => {
+	const streams = options.streams || [process.stdout, process.stderr];
+	const streamPromises = streams.map(stream => hook(stream, options, transform));
 
 	const promise = Promise.all(streamPromises);
 	promise.unhook = () => {
@@ -68,8 +67,5 @@ const hookStd = (opts, transform) => {
 hookStd.stdout = (...args) => hook(process.stdout, ...args);
 hookStd.stderr = (...args) => hook(process.stderr, ...args);
 
-module.exports.stdout = hookStd.stdout;
-module.exports.stderr = hookStd.stderr;
-
-module.exports.default = hookStd;
 module.exports = hookStd;
+module.exports.default = hookStd;
