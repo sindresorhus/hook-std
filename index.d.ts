@@ -1,4 +1,4 @@
-import {Writable} from 'stream';
+import {Writable as WritableStream} from 'stream';
 
 /**
  * `unhook()` method which, when called, unhooks from a stream and resolves the Promise.
@@ -38,7 +38,7 @@ export interface DefaultOptions extends Options {
 	 *
 	 * @default [process.stdout, process.stderr]
 	 */
-	streams?: Writable[];
+	streams?: WritableStream[];
 }
 
 /**
