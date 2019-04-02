@@ -26,34 +26,23 @@ declare namespace hookStd {
 		unhook: Unhook
 	) => boolean | void | null | undefined;
 
-	interface BaseOptions {
+	interface Options {
 		/**
 		Automatically unhooks after the first call.
 
 		@default false
 		*/
 		once?: boolean;
-	}
 
-	interface Options extends BaseOptions {
 		/**
 		Suppress stdout/stderr output.
 
 		@default true
 		*/
-		silent?: false;
+		silent?: boolean;
 	}
 
-	interface SilentOptions extends BaseOptions {
-		/**
-		Suppress stdout/stderr output.
-
-		@default true
-		*/
-		silent: true;
-	}
-
-	interface StreamsBaseOptions extends BaseOptions {
+	interface StreamsOptions extends Options {
 		/**
 		Writable streams to hook. This can be useful for libraries allowing users to configure a Writable Stream to write to.
 
@@ -62,31 +51,40 @@ declare namespace hookStd {
 		streams?: NodeJS.WritableStream[];
 	}
 
-	interface StreamsBaseOptions extends BaseOptions {
-		/**
-		Writable streams to hook. This can be useful for libraries allowing users to configure a Writable Stream to write to.
-
-		@default [process.stdout, process.stderr]
-		*/
-		streams?: NodeJS.WritableStream[];
-	}
-
-	interface StreamsOptions extends StreamsBaseOptions {
+	interface SilentFalseOptions extends Options {
 		/**
 		Suppress stdout/stderr output.
 
 		@default true
 		*/
-		silent?: false;
+		silent: false;
 	}
 
-	interface StreamsSilentOptions extends StreamsBaseOptions {
+	interface SilentTrueOptions extends Options {
 		/**
 		Suppress stdout/stderr output.
 
 		@default true
 		*/
-		silent: true;
+		silent?: true;
+	}
+
+	interface StreamsSilentFalseOptions extends StreamsOptions {
+		/**
+		Suppress stdout/stderr output.
+
+		@default true
+		*/
+		silent: false;
+	}
+
+	interface StreamsSilentTrueOptions extends StreamsOptions {
+		/**
+		Suppress stdout/stderr output.
+
+		@default true
+		*/
+		silent?: true;
 	}
 
 	/**
@@ -105,12 +103,12 @@ declare const hookStd: {
 	*/
 	(transform: hookStd.SilentTransform): hookStd.HookPromise;
 	(
-		options: hookStd.StreamsSilentOptions,
-		transform: hookStd.SilentTransform
+		options: hookStd.StreamsSilentFalseOptions,
+		transform: hookStd.Transform
 	): hookStd.HookPromise;
 	(
-		options: hookStd.StreamsOptions,
-		transform: hookStd.Transform
+		options: hookStd.StreamsSilentTrueOptions,
+		transform: hookStd.SilentTransform
 	): hookStd.HookPromise;
 
 	/**
@@ -147,12 +145,12 @@ declare const hookStd: {
 	*/
 	stdout(transform: hookStd.SilentTransform): hookStd.HookPromise;
 	stdout(
-		options: hookStd.SilentOptions,
-		transform: hookStd.SilentTransform
+		options: hookStd.SilentFalseOptions,
+		transform: hookStd.Transform
 	): hookStd.HookPromise;
 	stdout(
-		options: hookStd.Options,
-		transform: hookStd.Transform
+		options: hookStd.SilentTrueOptions,
+		transform: hookStd.SilentTransform
 	): hookStd.HookPromise;
 
 	/**
@@ -162,12 +160,12 @@ declare const hookStd: {
 	*/
 	stderr(transform: hookStd.SilentTransform): hookStd.HookPromise;
 	stderr(
-		options: hookStd.SilentOptions,
-		transform: hookStd.SilentTransform
+		options: hookStd.SilentFalseOptions,
+		transform: hookStd.Transform
 	): hookStd.HookPromise;
 	stderr(
-		options: hookStd.Options,
-		transform: hookStd.Transform
+		options: hookStd.SilentTrueOptions,
+		transform: hookStd.SilentTransform
 	): hookStd.HookPromise;
 };
 
