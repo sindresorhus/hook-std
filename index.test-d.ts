@@ -7,14 +7,14 @@ expectType<Unhook>(() => undefined);
 expectType<Unhook>(() => 0);
 expectType<Unhook>(() => '0');
 
-expectType<Transform>((output: string, unhook: Unhook) => null);
 expectType<Transform>((output: string, unhook: Unhook) => undefined);
+expectType<Transform>((output: string, unhook: Unhook) => {});
 expectType<Transform>((output: string, unhook: Unhook) => 'foo');
 expectType<Transform>((output: string, unhook: Unhook) => Buffer.from('foo'));
 expectError<Transform>((output: string, unhook: Unhook) => true);
 
-expectType<SilentTransform>((output: string, unhook: Unhook) => null);
 expectType<SilentTransform>((output: string, unhook: Unhook) => undefined);
+expectType<SilentTransform>((output: string, unhook: Unhook) => {});
 expectType<SilentTransform>((output: string, unhook: Unhook) => true);
 expectError<SilentTransform>((output: string, unhook: Unhook) => 'foo');
 expectError<SilentTransform>((output: string, unhook: Unhook) =>

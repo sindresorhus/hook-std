@@ -14,7 +14,7 @@ declare namespace hookStd {
 	type Transform = (
 		output: string,
 		unhook: Unhook
-	) => Buffer | string | void | null | undefined;
+	) => Buffer | string | void;
 
 	/**
 	@param output - String from stream output.
@@ -24,7 +24,7 @@ declare namespace hookStd {
 	type SilentTransform = (
 		output: string,
 		unhook: Unhook
-	) => boolean | void | null | undefined;
+	) => boolean | void;
 
 	interface Options {
 		/**
