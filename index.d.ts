@@ -32,14 +32,14 @@ declare namespace hookStd {
 
 		@default false
 		*/
-		once?: boolean;
+		readonly once?: boolean;
 
 		/**
 		Suppress stdout/stderr output.
 
 		@default true
 		*/
-		silent?: boolean;
+		readonly silent?: boolean;
 	}
 
 	interface StreamsOptions extends Options {
@@ -48,7 +48,7 @@ declare namespace hookStd {
 
 		@default [process.stdout, process.stderr]
 		*/
-		streams?: NodeJS.WritableStream[];
+		readonly streams?: NodeJS.WritableStream[];
 	}
 
 	interface SilentFalseOptions extends Options {
@@ -57,7 +57,7 @@ declare namespace hookStd {
 
 		@default true
 		*/
-		silent: false;
+		readonly silent: false;
 	}
 
 	interface SilentTrueOptions extends Options {
@@ -66,7 +66,7 @@ declare namespace hookStd {
 
 		@default true
 		*/
-		silent?: true;
+		readonly silent?: true;
 	}
 
 	interface StreamsSilentFalseOptions extends StreamsOptions {
@@ -75,7 +75,7 @@ declare namespace hookStd {
 
 		@default true
 		*/
-		silent: false;
+		readonly silent: false;
 	}
 
 	interface StreamsSilentTrueOptions extends StreamsOptions {
@@ -84,7 +84,7 @@ declare namespace hookStd {
 
 		@default true
 		*/
-		silent?: true;
+		readonly silent?: true;
 	}
 
 	/**
