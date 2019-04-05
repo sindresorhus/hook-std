@@ -16,25 +16,29 @@ $ npm install hook-std
 const assert = require('assert');
 const hookStd = require('hook-std');
 
-const promise = hookStd.stdout(output => {
-	promise.unhook();
-	assert.strictEqual(output.trim(), 'unicorn');
-});
+(async () => {
+	const promise = hookStd.stdout(output => {
+		promise.unhook();
+		assert.strictEqual(output.trim(), 'unicorn');
+	});
 
-console.log('unicorn');
-await promise;
+	console.log('unicorn');
+	await promise;
+})();
 ```
 
 You can also unhook using the second `transform` method parameter:
 
 ```js
-const promise = hookStd.stdout((output, unhook) => {
-	unhook();
-	assert.strictEqual(output.trim(), 'unicorn');
-});
+(async () => {
+	const promise = hookStd.stdout((output, unhook) => {
+		unhook();
+		assert.strictEqual(output.trim(), 'unicorn');
+	});
 
-console.log('unicorn');
-await promise;
+	console.log('unicorn');
+	await promise;
+})();
 ```
 
 

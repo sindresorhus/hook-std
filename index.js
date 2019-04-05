@@ -68,4 +68,3 @@ hookStd.stdout = (...args) => hook(process.stdout, ...args);
 hookStd.stderr = (...args) => hook(process.stderr, ...args);
 
 module.exports = hookStd;
-module.exports.default = hookStd;
