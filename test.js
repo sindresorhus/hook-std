@@ -27,8 +27,8 @@ test.cb('hook stdout & stderr', t => {
 
 	let i = 0;
 
-	const promise = hookStd(str => {
-		if (str === 'foo' || str === 'bar') {
+	const promise = hookStd(string => {
+		if (string === 'foo' || string === 'bar') {
 			t.pass();
 		}
 
@@ -45,8 +45,8 @@ test.cb('hook stdout & stderr', t => {
 test.cb('hook stdout', t => {
 	t.plan(1);
 
-	const promise = hookStd.stdout(str => {
-		t.is(str, 'foo');
+	const promise = hookStd.stdout(string => {
+		t.is(string, 'foo');
 		promise.unhook();
 		t.end();
 	});
@@ -57,8 +57,8 @@ test.cb('hook stdout', t => {
 test.cb('hook stderr', t => {
 	t.plan(1);
 
-	const promise = hookStd.stderr(str => {
-		t.is(str, 'foo');
+	const promise = hookStd.stderr(string => {
+		t.is(string, 'foo');
 		promise.unhook();
 		t.end();
 	});
@@ -72,8 +72,8 @@ test.cb('hook custom stream', t => {
 
 	let i = 0;
 
-	const promise = hookStd({streams}, str => {
-		if (str === 'foo') {
+	const promise = hookStd({streams}, string => {
+		if (string === 'foo') {
 			t.pass();
 		}
 
@@ -86,7 +86,7 @@ test.cb('hook custom stream', t => {
 	streams[0].write('foo');
 });
 
-function loggingWrite(log, retVal) {
+function loggingWrite(log, returnValueValue) {
 	return (...items) => {
 		while (items[items.length - 1] === undefined) {
 			items.pop();
@@ -94,7 +94,7 @@ function loggingWrite(log, retVal) {
 
 		log.push(items);
 
-		return retVal();
+		return returnValueValue();
 	};
 }
 
@@ -108,7 +108,7 @@ test('passes through the return value of the underlying write call', t => {
 		write: loggingWrite(log, () => returnValue)
 	};
 
-	hookStd.stdout({silent: false}, str => str);
+	hookStd.stdout({silent: false}, string => string);
 
 	t.false(process.stdout.write('foo'));
 	returnValue = true;
@@ -124,9 +124,9 @@ test('if silent, returns true by default', t => {
 		write: () => t.fail()
 	};
 
-	hookStd.stdout(str => {
-		log.push(str);
-		return str;
+	hookStd.stdout(string => {
+		log.push(string);
+		return string;
 	});
 
 	t.true(process.stdout.write('foo'));
@@ -142,8 +142,8 @@ test('if silent, callback can return a boolean', t => {
 		write: () => t.fail()
 	};
 
-	hookStd.stdout(str => {
-		log.push(str);
+	hookStd.stdout(string => {
+		log.push(string);
 		return returnValue;
 	});
 
@@ -161,7 +161,7 @@ test('callback can return a buffer', t => {
 		write: loggingWrite(log, () => true)
 	};
 
-	hookStd.stdout({silent: false}, str => Buffer.from(str));
+	hookStd.stdout({silent: false}, string => Buffer.from(string));
 
 	t.true(process.stdout.write('foo'));
 	t.true(process.stdout.write('bar'));
@@ -177,7 +177,7 @@ test('if no options are assigned, behave as silent', t => {
 		write: loggingWrite(log, () => returnValue)
 	};
 
-	hookStd.stdout(str => str);
+	hookStd.stdout(string => string);
 
 	process.stdout.write('foo');
 	returnValue = true;
@@ -193,7 +193,7 @@ test('if once option is true, only the first write is silent', t => {
 		write: loggingWrite(log, () => returnValue)
 	};
 
-	hookStd.stdout({once: true}, str => str);
+	hookStd.stdout({once: true}, string => string);
 
 	process.stdout.write('foo');
 	process.stdout.write('bar');
@@ -211,9 +211,9 @@ test('if once option is true and silent is false, hook only prints the first wri
 		write: loggingWrite(log, () => true)
 	};
 
-	hookStd.stdout({silent: false, once: true}, str => {
-		hookReturnValue = str;
-		return str;
+	hookStd.stdout({silent: false, once: true}, string => {
+		hookReturnValue = string;
+		return string;
 	});
 
 	process.stdout.write('foo');
@@ -231,7 +231,7 @@ test('output is converted to string', t => {
 	t.plan(4);
 	const log = [];
 
-	hookStd.stdout(str => log.push(str));
+	hookStd.stdout(string => log.push(string));
 
 	process.stdout.write('foo');
 	t.deepEqual(log, ['foo']);
@@ -278,7 +278,7 @@ test('promise resolves when stdout & stderr are hooked and released via promise 
 	t.plan(1);
 	const log = [];
 
-	const promise = hookStd(str => log.push(str));
+	const promise = hookStd(string => log.push(string));
 
 	process.stdout.write('foo');
 	process.stderr.write('bar');
@@ -292,8 +292,8 @@ test('promise resolves when stdout & stderr are hooked and released via callback
 	t.plan(1);
 	const log = [];
 
-	const promise = hookStd((str, unhook) => {
-		log.push(str);
+	const promise = hookStd((string, unhook) => {
+		log.push(string);
 		unhook();
 	});
 
@@ -306,8 +306,8 @@ test('promise resolves when stdout & stderr are hooked and released via callback
 
 test('promise resolves when stdout is released via promise unhook method', async t => {
 	t.plan(1);
-	const promise = hookStd.stdout(str => {
-		t.is(str, 'foo');
+	const promise = hookStd.stdout(string => {
+		t.is(string, 'foo');
 	});
 	process.stdout.write('foo');
 	promise.unhook();
@@ -316,8 +316,8 @@ test('promise resolves when stdout is released via promise unhook method', async
 
 test('promise resolves when stderr is released via promise unhook method', async t => {
 	t.plan(1);
-	const promise = hookStd.stderr(str => {
-		t.is(str, 'foo');
+	const promise = hookStd.stderr(string => {
+		t.is(string, 'foo');
 	});
 	process.stderr.write('foo');
 	promise.unhook();
@@ -329,8 +329,8 @@ test('promise resolves when streams are hooked and released via callback', async
 	const log = [];
 	const streams = [{write: () => {}}, {write: () => {}}];
 
-	const promise = hookStd({streams}, (str, unhook) => {
-		log.push(str);
+	const promise = hookStd({streams}, (string, unhook) => {
+		log.push(string);
 		unhook();
 	});
 

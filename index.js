@@ -6,12 +6,13 @@ const hook = (stream, options, transform) => {
 		options = {};
 	}
 
-	options = Object.assign({
+	options = {
 		silent: true,
-		once: false
-	}, options);
+		once: false,
+		...options
+	};
 
-	let unhookFn;
+	let unhookFunction;
 
 	const promise = new Promise(resolve => {
 		const {write} = stream;
@@ -21,31 +22,31 @@ const hook = (stream, options, transform) => {
 			resolve();
 		};
 
-		stream.write = (output, enc, cb) => {
-			const cbRet = transform(String(output), unhook);
+		stream.write = (output, encoding, callback) => {
+			const callbackReturnValue = transform(String(output), unhook);
 
 			if (options.once) {
 				unhook();
 			}
 
 			if (options.silent) {
-				return typeof cbRet === 'boolean' ? cbRet : true;
+				return typeof callbackReturnValue === 'boolean' ? callbackReturnValue : true;
 			}
 
-			let ret;
-			if (typeof cbRet === 'string') {
-				ret = typeof enc === 'string' ? Buffer.from(cbRet).toString(enc) : cbRet;
+			let returnValue;
+			if (typeof callbackReturnValue === 'string') {
+				returnValue = typeof encoding === 'string' ? Buffer.from(callbackReturnValue).toString(encoding) : callbackReturnValue;
 			}
 
-			ret = ret || (Buffer.isBuffer(cbRet) ? cbRet : output);
+			returnValue = returnValue || (Buffer.isBuffer(callbackReturnValue) ? callbackReturnValue : output);
 
-			return write.call(stream, ret, enc, cb);
+			return write.call(stream, returnValue, encoding, callback);
 		};
 
-		unhookFn = unhook;
+		unhookFunction = unhook;
 	});
 
-	promise.unhook = unhookFn;
+	promise.unhook = unhookFunction;
 
 	return promise;
 };
@@ -64,7 +65,7 @@ const hookStd = (options, transform) => {
 	return promise;
 };
 
-hookStd.stdout = (...args) => hook(process.stdout, ...args);
-hookStd.stderr = (...args) => hook(process.stderr, ...args);
+hookStd.stdout = (...arguments_) => hook(process.stdout, ...arguments_);
+hookStd.stderr = (...arguments_) => hook(process.stderr, ...arguments_);
 
 module.exports = hookStd;
