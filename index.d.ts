@@ -48,7 +48,7 @@ declare namespace hookStd {
 
 		@default [process.stdout, process.stderr]
 		*/
-		readonly streams?: NodeJS.WritableStream[];
+		readonly streams?: readonly NodeJS.WritableStream[];
 	}
 
 	interface SilentFalseOptions extends Options {
