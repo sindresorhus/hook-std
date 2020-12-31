@@ -1,4 +1,4 @@
-# hook-std [![Build Status](https://travis-ci.org/sindresorhus/hook-std.svg?branch=master)](https://travis-ci.org/sindresorhus/hook-std)
+# hook-std
 
 > Hook and modify stdout and stderr
 
