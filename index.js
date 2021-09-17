@@ -1,4 +1,5 @@
-'use strict';
+import process from 'node:process';
+import {Buffer} from 'node:buffer';
 
 const hook = (stream, options, transform) => {
 	if (typeof options !== 'object') {
@@ -9,7 +10,7 @@ const hook = (stream, options, transform) => {
 	options = {
 		silent: true,
 		once: false,
-		...options
+		...options,
 	};
 
 	let unhookFunction;
@@ -51,7 +52,7 @@ const hook = (stream, options, transform) => {
 	return promise;
 };
 
-const hookStd = (options, transform) => {
+export function hookStd(options, transform) {
 	const streams = options.streams || [process.stdout, process.stderr];
 	const streamPromises = streams.map(stream => hook(stream, options, transform));
 
@@ -63,9 +64,12 @@ const hookStd = (options, transform) => {
 	};
 
 	return promise;
-};
+}
 
-hookStd.stdout = (...arguments_) => hook(process.stdout, ...arguments_);
-hookStd.stderr = (...arguments_) => hook(process.stderr, ...arguments_);
+export function hookStdout(...arguments_) {
+	return hook(process.stdout, ...arguments_);
+}
 
-module.exports = hookStd;
+export function hookStderr(...arguments_) {
+	return hook(process.stderr, ...arguments_);
+}

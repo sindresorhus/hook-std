@@ -1,28 +1,27 @@
-import {expectType, expectError} from 'tsd';
-import hookStd = require('.');
-import {HookPromise, Unhook, Transform, SilentTransform} from '.';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import process from 'node:process';
+import {Buffer} from 'node:buffer';
+import {expectType, expectAssignable, expectError} from 'tsd';
+import {hookStd, hookStdout, hookStderr, HookPromise, Unhook, Transform, SilentTransform} from './index.js';
 
-expectType<Unhook>(() => null);
-expectType<Unhook>(() => undefined);
-expectType<Unhook>(() => 0);
-expectType<Unhook>(() => '0');
+expectAssignable<Unhook>(() => null);
+expectAssignable<Unhook>(() => undefined);
+expectAssignable<Unhook>(() => 0);
+expectAssignable<Unhook>(() => '0');
 
-expectType<Transform>((output: string, unhook: Unhook) => undefined);
-expectType<Transform>((output: string, unhook: Unhook) => {});
-expectType<Transform>((output: string, unhook: Unhook) => 'foo');
-expectType<Transform>((output: string, unhook: Unhook) => Buffer.from('foo'));
-expectError<Transform>((output: string, unhook: Unhook) => true);
+expectAssignable<Transform>((_output: string, _unhook: Unhook) => undefined);
+expectAssignable<Transform>((_output: string, _unhook: Unhook) => {}); // eslint-disable-line  @typescript-eslint/no-empty-function
+expectAssignable<Transform>((_output: string, _unhook: Unhook) => 'foo');
+expectAssignable<Transform>((_output: string, _unhook: Unhook) => Buffer.from('foo'));
+expectError<Transform>((_output: string, _unhook: Unhook) => true);
 
-expectType<SilentTransform>((output: string, unhook: Unhook) => undefined);
-expectType<SilentTransform>((output: string, unhook: Unhook) => {});
-expectType<SilentTransform>((output: string, unhook: Unhook) => true);
-expectError<SilentTransform>((output: string, unhook: Unhook) => 'foo');
-expectError<SilentTransform>((output: string, unhook: Unhook) =>
-	Buffer.from('foo')
-);
+expectAssignable<SilentTransform>((_output: string, _unhook: Unhook) => undefined);
+expectAssignable<SilentTransform>((_output: string, _unhook: Unhook) => {}); // eslint-disable-line  @typescript-eslint/no-empty-function
+expectAssignable<SilentTransform>((_output: string, _unhook: Unhook) => true);
+expectError<SilentTransform>((_output: string, _unhook: Unhook) => 'foo');
+expectError<SilentTransform>((_output: string, _unhook: Unhook) => Buffer.from('foo'));
 
 expectType<HookPromise>(hookStd({once: true}, () => true));
-expectError(hookStd({once: true}, () => 'foo'));
 expectType<HookPromise>(hookStd(() => true));
 expectError(hookStd(() => 'foo'));
 expectType<HookPromise>(hookStd({silent: false}, () => 'foo'));
@@ -30,36 +29,33 @@ expectType<HookPromise>(hookStd({silent: true}, () => true));
 expectError(hookStd({silent: false}, () => true));
 expectError(hookStd({silent: true}, () => 'foo'));
 expectType<HookPromise>(hookStd({streams: [process.stderr]}, () => true));
-expectError(hookStd({streams: [process.stderr]}, () => 'foo'));
 expectType<HookPromise>(
-	hookStd({silent: false, streams: [process.stderr]}, () => 'foo')
+	hookStd({silent: false, streams: [process.stderr]}, () => 'foo'),
 );
 expectType<HookPromise>(
-	hookStd({silent: true, streams: [process.stderr]}, () => true)
+	hookStd({silent: true, streams: [process.stderr]}, () => true),
 );
 expectError(hookStd({silent: false, streams: [process.stderr]}, () => true));
 expectError(hookStd({silent: true, streams: [process.stderr]}, () => 'foo'));
 
-expectType<HookPromise>(hookStd.stdout({once: true}, () => true));
-expectError(hookStd.stdout({once: true}, () => 'foo'));
-expectType<HookPromise>(hookStd.stdout(() => true));
-expectError(hookStd.stdout(() => 'foo'));
-expectType<HookPromise>(hookStd.stdout({silent: false}, () => 'foo'));
-expectType<HookPromise>(hookStd.stdout({silent: true}, () => true));
-expectError(hookStd.stdout({silent: false}, () => true));
-expectError(hookStd.stdout({silent: true}, () => 'foo'));
+expectType<HookPromise>(hookStdout({once: true}, () => true));
+expectType<HookPromise>(hookStdout(() => true));
+expectError(hookStdout(() => 'foo'));
+expectType<HookPromise>(hookStdout({silent: false}, () => 'foo'));
+expectType<HookPromise>(hookStdout({silent: true}, () => true));
+expectError(hookStdout({silent: false}, () => true));
+expectError(hookStdout({silent: true}, () => 'foo'));
 expectError(
-	hookStd.stdout({silent: false, streams: [process.stderr]}, () => 'foo')
+	hookStdout({silent: false, streams: [process.stderr]}, () => 'foo'),
 );
 
-expectType<HookPromise>(hookStd.stderr({once: true}, () => true));
-expectError(hookStd.stderr({once: true}, () => 'foo'));
-expectType<HookPromise>(hookStd.stderr(() => true));
-expectError(hookStd.stderr(() => 'foo'));
-expectType<HookPromise>(hookStd.stderr({silent: false}, () => 'foo'));
-expectType<HookPromise>(hookStd.stderr({silent: true}, () => true));
-expectError(hookStd.stderr({silent: false}, () => true));
-expectError(hookStd.stderr({silent: true}, () => 'foo'));
+expectType<HookPromise>(hookStderr({once: true}, () => true));
+expectType<HookPromise>(hookStderr(() => true));
+expectError(hookStderr(() => 'foo'));
+expectType<HookPromise>(hookStderr({silent: false}, () => 'foo'));
+expectType<HookPromise>(hookStderr({silent: true}, () => true));
+expectError(hookStderr({silent: false}, () => true));
+expectError(hookStderr({silent: true}, () => 'foo'));
 expectError(
-	hookStd.stderr({silent: false, streams: [process.stderr]}, () => 'foo')
+	hookStderr({silent: false, streams: [process.stderr]}, () => 'foo'),
 );
