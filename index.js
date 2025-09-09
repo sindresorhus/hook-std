@@ -1,7 +1,7 @@
 import process from 'node:process';
 import {Buffer} from 'node:buffer';
 
-const hook = (stream, options, transform) => {
+const hook = (stream, options, transform, sharedOutput) => {
 	if (typeof options !== 'object') {
 		transform = options;
 		options = {};
@@ -14,6 +14,7 @@ const hook = (stream, options, transform) => {
 	};
 
 	let unhookFunction;
+	const output = sharedOutput || [];
 
 	const promise = new Promise(resolve => {
 		const {write} = stream;
@@ -23,8 +24,14 @@ const hook = (stream, options, transform) => {
 			resolve();
 		};
 
-		stream.write = (output, encoding, callback) => {
-			const callbackReturnValue = transform(String(output), unhook);
+		stream.write = (output_, encoding, callback) => {
+			const stringOutput = String(output_);
+			output.push(stringOutput);
+
+			let callbackReturnValue;
+			if (transform) {
+				callbackReturnValue = transform(stringOutput, unhook);
+			}
 
 			if (options.once) {
 				unhook();
@@ -39,7 +46,7 @@ const hook = (stream, options, transform) => {
 				returnValue = typeof encoding === 'string' ? Buffer.from(callbackReturnValue).toString(encoding) : callbackReturnValue;
 			}
 
-			returnValue = returnValue || (Buffer.isBuffer(callbackReturnValue) ? callbackReturnValue : output);
+			returnValue = returnValue || (Buffer.isBuffer(callbackReturnValue) ? callbackReturnValue : output_);
 
 			return write.call(stream, returnValue, encoding, callback);
 		};
@@ -49,12 +56,34 @@ const hook = (stream, options, transform) => {
 
 	promise.unhook = unhookFunction;
 
+	// Add output getter that returns concatenated strings
+	Object.defineProperty(promise, 'output', {
+		get() {
+			return output.join('');
+		},
+	});
+
 	return promise;
 };
 
 export function hookStd(options, transform) {
+	// Handle case where options is actually the transform function
+	if (typeof options === 'function') {
+		transform = options;
+		options = {};
+	}
+
+	// Handle case where no arguments are provided
+	if (!options) {
+		options = {};
+	}
+
 	const streams = options.streams || [process.stdout, process.stderr];
-	const streamPromises = streams.map(stream => hook(stream, options, transform));
+
+	// Use a shared output array for all streams to preserve interleaved order
+	const sharedOutput = [];
+
+	const streamPromises = streams.map(stream => hook(stream, options, transform, sharedOutput));
 
 	const promise = Promise.all(streamPromises);
 	promise.unhook = () => {
@@ -62,6 +91,13 @@ export function hookStd(options, transform) {
 			streamPromise.unhook();
 		}
 	};
+
+	// Add output getter that returns interleaved output from shared array
+	Object.defineProperty(promise, 'output', {
+		get() {
+			return sharedOutput.join('');
+		},
+	});
 
 	return promise;
 }

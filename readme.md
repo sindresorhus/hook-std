@@ -38,25 +38,51 @@ console.log('unicorn');
 await promise;
 ```
 
+Automatically collect output without a transform function:
+
+```js
+import {hookStdout} from 'hook-std';
+
+const promise = hookStdout();
+console.log('unicorn');
+console.log('rainbow');
+console.log(promise.output); // 'unicorn\nrainbow\n'
+promise.unhook();
+await promise;
+```
+
 ## API
 
-### hookStd(options?, transform)
+### hookStd(options?, transform?)
 
 Hook streams in [`streams` option](#streams), or stdout and stderr if none are specified.
 
-Returns a `Promise` with a `unhook()` method which, when called, unhooks both stdout and stderr and resolves the `Promise` with an empty result.
+Returns a `Promise` with a `unhook()` method which, when called, unhooks both stdout and stderr and resolves the `Promise` with an empty result. The returned promise also has an `output` property to access the collected output.
 
-### hookStdout(options?, transform)
+When hooking multiple streams, the `output` property contains the interleaved output in the order the writes occurred:
+
+```js
+import {hookStd} from 'hook-std';
+
+const promise = hookStd();
+process.stdout.write('A');
+process.stderr.write('B');
+process.stdout.write('C');
+console.log(promise.output); // 'ABC' (interleaved in order)
+promise.unhook();
+```
+
+### hookStdout(options?, transform?)
 
 Hook stdout.
 
-Returns a `Promise` with a `unhook()` method which, when called, unhooks stdout and resolves the `Promise` with an empty result.
+Returns a `Promise` with a `unhook()` method which, when called, unhooks stdout and resolves the `Promise` with an empty result. The returned promise also has an `output` property to access the collected output.
 
-### hookStderr(options?, transform)
+### hookStderr(options?, transform?)
 
 Hook stderr.
 
-Returns a `Promise` with a `unhook()` method which, when called, unhooks stderr and resolves the `Promise` with an empty result.
+Returns a `Promise` with a `unhook()` method which, when called, unhooks stderr and resolves the `Promise` with an empty result. The returned promise also has an `output` property to access the collected output.
 
 #### options
 
@@ -88,3 +114,5 @@ The [writable streams](https://nodejs.org/api/stream.html#stream_writable_stream
 Type: `Function`
 
 Receives stdout/stderr as the first argument and the unhook method as the second argument. Return a string to modify it. Optionally, when in silent mode, you may return a `boolean` to influence the return value of `.write(…)`.
+
+Output is automatically collected and can be accessed via the `output` property of the returned promise, regardless of whether a transform function is provided.

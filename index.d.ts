@@ -52,30 +52,53 @@ export interface StreamsOptions extends Options {
 
 /**
 Promise with a `unhook()` method which, when called, resolves the Promise with an empty result.
+Also includes an `output` property to get the collected output.
 */
 export interface HookPromise extends Promise<void> {
 	unhook: Unhook;
+
+	/**
+	Get the collected output so far.
+
+	Available even when a transform function is provided.
+	*/
+	readonly output: string;
 }
 
 /**
 Hook streams in the `streams` options, or stdout and stderr if none are specified.
 
-@returns A `Promise` with a `unhook()` method which, when called, unhooks both stdout and stderr and resolves the `Promise` with an empty result.
+@returns A `Promise` with a `unhook()` method which, when called, unhooks both stdout and stderr and resolves the `Promise` with an empty result. The returned promise also has an `output` property to access the collected output.
+
+When hooking multiple streams, the `output` property contains the interleaved output in the order the writes occurred.
+
+@example
+```
+import {hookStd} from 'hook-std';
+
+const promise = hookStd();
+process.stdout.write('A');
+process.stderr.write('B');
+process.stdout.write('C');
+console.log(promise.output); // 'ABC' (interleaved in order)
+promise.unhook();
+```
 */
+export function hookStd(): HookPromise;
 export function hookStd(transform: SilentTransform): HookPromise;
 export function hookStd(
 	options: StreamsOptions & {silent?: false},
-	transform: Transform
+	transform?: Transform
 ): HookPromise;
 export function hookStd(
 	options: StreamsOptions & {silent?: true},
-	transform: SilentTransform
+	transform?: SilentTransform
 ): HookPromise;
 
 /**
 Hook stdout.
 
-@returns A `Promise` with a `unhook()` method which, when called, unhooks stdout and resolves the `Promise` with an empty result.
+@returns A `Promise` with a `unhook()` method which, when called, unhooks stdout and resolves the `Promise` with an empty result. The returned promise also has an `output` property to access the collected output.
 
 @example
 ```
@@ -106,28 +129,43 @@ const promise = hookStdout((output, unhook) => {
 console.log('unicorn');
 await promise;
 ```
+
+Or collect output without a transform function:
+
+@example
+```
+import {hookStdout} from 'hook-std';
+
+const promise = hookStdout();
+console.log('unicorn');
+console.log('rainbow');
+console.log(promise.output); // 'unicorn\nrainbow\n'
+promise.unhook();
+await promise;
+```
 */
+export function hookStdout(): HookPromise;
 export function hookStdout(transform: SilentTransform): HookPromise;
 export function hookStdout(
 	options: Options & {silent?: false},
-	transform: Transform
+	transform?: Transform
 ): HookPromise;
 export function hookStdout(
 	options: Options & {silent?: true},
-	transform: SilentTransform
+	transform?: SilentTransform
 ): HookPromise;
 
 /**
 Hook stderr.
 
-@returns A `Promise` with a `unhook()` method which, when called, unhooks stderr and resolves the `Promise` with an empty result.
+@returns A `Promise` with a `unhook()` method which, when called, unhooks stderr and resolves the `Promise` with an empty result. The returned promise also has an `output` property to access the collected output.
 
 @example
 ```
 import assert from 'node:assert';
 import {hookStderr} from 'hook-std';
 
-const promise = hookStdout(output => {
+const promise = hookStderr(output => {
 	promise.unhook();
 	assert.strictEqual(output.trim(), 'unicorn');
 });
@@ -151,14 +189,29 @@ const promise = hookStderr((output, unhook) => {
 console.error('unicorn');
 await promise;
 ```
+
+Or collect output without a transform function:
+
+@example
+```
+import {hookStderr} from 'hook-std';
+
+const promise = hookStderr();
+console.error('unicorn');
+console.error('rainbow');
+console.log(promise.output); // 'unicorn\nrainbow\n'
+promise.unhook();
+await promise;
+```
 */
+export function hookStderr(): HookPromise;
 export function hookStderr(transform: SilentTransform): HookPromise;
 export function hookStderr(
 	options: Options & {silent?: false},
-	transform: Transform
+	transform?: Transform
 ): HookPromise;
 export function hookStderr(
 	options: Options & {silent?: true},
-	transform: SilentTransform
+	transform?: SilentTransform
 ): HookPromise;
 

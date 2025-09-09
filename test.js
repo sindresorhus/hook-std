@@ -342,3 +342,210 @@ test('promise resolves when streams are hooked and released via callback', async
 
 	await promise;
 });
+
+test('collects output when no transform provided to hookStdout', t => {
+	t.plan(2);
+
+	const promise = hookStdout();
+
+	process.stdout.write('foo');
+	process.stdout.write('bar');
+
+	t.is(promise.output, 'foobar');
+
+	process.stdout.write('baz');
+	t.is(promise.output, 'foobarbaz');
+
+	promise.unhook();
+});
+
+test('collects output when no transform provided to hookStderr', t => {
+	t.plan(2);
+
+	const promise = hookStderr();
+
+	process.stderr.write('error1');
+	process.stderr.write('error2');
+
+	t.is(promise.output, 'error1error2');
+
+	process.stderr.write('error3');
+	t.is(promise.output, 'error1error2error3');
+
+	promise.unhook();
+});
+
+test('collects output when no transform provided to hookStd', t => {
+	t.plan(1);
+
+	const promise = hookStd();
+
+	process.stdout.write('out1');
+	process.stderr.write('err1');
+	process.stdout.write('out2');
+	process.stderr.write('err2');
+
+	// The output should be interleaved in the order written
+	t.is(promise.output, 'out1err1out2err2');
+
+	promise.unhook();
+});
+
+test('output property available even with transform function', t => {
+	t.plan(3);
+	const log = [];
+
+	const promise = hookStdout(string => {
+		log.push(`intercepted: ${string}`);
+	});
+
+	process.stdout.write('foo');
+	t.is(promise.output, 'foo');
+	t.deepEqual(log, ['intercepted: foo']);
+
+	process.stdout.write('bar');
+	t.is(promise.output, 'foobar');
+
+	promise.unhook();
+});
+
+test('output getter returns real-time output', t => {
+	t.plan(3);
+
+	const promise = hookStdout();
+
+	t.is(promise.output, '');
+
+	process.stdout.write('first');
+	t.is(promise.output, 'first');
+
+	process.stdout.write(' second');
+	t.is(promise.output, 'first second');
+
+	promise.unhook();
+});
+
+test('handles numbers and objects in output collection', t => {
+	t.plan(1);
+
+	const promise = hookStdout();
+
+	process.stdout.write('text');
+	process.stdout.write(123);
+	process.stdout.write({foo: 'bar'});
+
+	t.is(promise.output, 'text123[object Object]');
+
+	promise.unhook();
+});
+
+test('output collection works with once option', t => {
+	t.plan(2);
+
+	const promise = hookStdout({once: true});
+
+	process.stdout.write('first');
+	t.is(promise.output, 'first');
+
+	// After once, hook is released but output should still be accessible
+	process.stdout.write('second');
+	t.is(promise.output, 'first');
+
+	promise.unhook();
+});
+
+test('output collection works with silent false', t => {
+	t.plan(2);
+	const log = [];
+
+	process.stdout = {
+		write: loggingWrite(log, () => true),
+	};
+
+	const promise = hookStdout({silent: false});
+
+	process.stdout.write('foo');
+	process.stdout.write('bar');
+
+	t.is(promise.output, 'foobar');
+	t.deepEqual(log, [['foo'], ['bar']]);
+
+	promise.unhook();
+});
+
+test('hookStd preserves interleaved order with transform', t => {
+	t.plan(2);
+	const collected = [];
+
+	const promise = hookStd(string => {
+		collected.push(string);
+	});
+
+	process.stdout.write('1');
+	process.stderr.write('2');
+	process.stdout.write('3');
+	process.stderr.write('4');
+
+	t.deepEqual(collected, ['1', '2', '3', '4']);
+	t.is(promise.output, '1234');
+
+	promise.unhook();
+});
+
+test('hookStd with custom streams preserves interleaved output', t => {
+	t.plan(1);
+	const streams = [
+		{write: () => {}},
+		{write: () => {}},
+		{write: () => {}},
+	];
+
+	const promise = hookStd({streams});
+
+	streams[0].write('A');
+	streams[1].write('B');
+	streams[2].write('C');
+	streams[0].write('D');
+
+	t.is(promise.output, 'ABCD');
+
+	promise.unhook();
+});
+
+test('hookStd output is empty initially', t => {
+	const promise = hookStd();
+	t.is(promise.output, '');
+	promise.unhook();
+});
+
+test('hookStd output updates in real-time across streams', t => {
+	const promise = hookStd();
+
+	t.is(promise.output, '');
+
+	process.stdout.write('out');
+	t.is(promise.output, 'out');
+
+	process.stderr.write('err');
+	t.is(promise.output, 'outerr');
+
+	process.stdout.write('!');
+	t.is(promise.output, 'outerr!');
+
+	promise.unhook();
+});
+
+test('individual stream hooks still have their own output', t => {
+	const hookOut = hookStdout();
+	const hookError = hookStderr();
+
+	process.stdout.write('stdout1');
+	process.stderr.write('stderr1');
+	process.stdout.write('stdout2');
+
+	t.is(hookOut.output, 'stdout1stdout2');
+	t.is(hookError.output, 'stderr1');
+
+	hookOut.unhook();
+	hookError.unhook();
+});
