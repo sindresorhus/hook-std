@@ -1,4 +1,4 @@
-import {Buffer} from 'node:buffer';
+/* eslint-disable @typescript-eslint/unified-signatures */
 
 /**
 `unhook()` method which, when called, unhooks from a stream and resolves the Promise.
@@ -13,7 +13,7 @@ export type Unhook = () => void;
 export type Transform = (
 	output: string,
 	unhook: Unhook
-) => Buffer | string | void;
+) => Uint8Array | string | void;
 
 /**
 @param output - String from stream output.
@@ -25,7 +25,7 @@ export type SilentTransform = (
 	unhook: Unhook
 ) => boolean | void;
 
-export interface Options {
+export type Options = {
 	/**
 	Automatically unhook after the first call.
 
@@ -39,22 +39,22 @@ export interface Options {
 	@default true
 	*/
 	readonly silent?: boolean;
-}
+};
 
-export interface StreamsOptions extends Options {
+export type StreamsOptions = {
 	/**
 	The writable streams to hook. This can be useful for libraries allowing users to configure a writable stream to write to.
 
 	@default [process.stdout, process.stderr]
 	*/
 	readonly streams?: readonly NodeJS.WritableStream[];
-}
+} & Options;
 
 /**
 Promise with a `unhook()` method which, when called, resolves the Promise with an empty result.
 Also includes an `output` property to get the collected output.
 */
-export interface HookPromise extends Promise<void> {
+export type HookPromise = {
 	unhook: Unhook;
 
 	/**
@@ -63,7 +63,7 @@ export interface HookPromise extends Promise<void> {
 	Available even when a transform function is provided.
 	*/
 	readonly output: string;
-}
+} & Promise<void>;
 
 /**
 Hook streams in the `streams` options, or stdout and stderr if none are specified.

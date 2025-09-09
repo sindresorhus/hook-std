@@ -24,7 +24,7 @@ function restore() {
 test.beforeEach(restore);
 test.afterEach(restore);
 
-test.cb('hook stdout & stderr', t => {
+test('hook stdout & stderr', async t => {
 	t.plan(2);
 
 	let index = 0;
@@ -36,41 +36,42 @@ test.cb('hook stdout & stderr', t => {
 
 		if (++index === 2) {
 			promise.unhook();
-			t.end();
 		}
 	});
 
 	process.stdout.write('foo');
 	process.stderr.write('bar');
+
+	await promise;
 });
 
-test.cb('hook stdout', t => {
+test('hook stdout', async t => {
 	t.plan(1);
 
 	const promise = hookStdout(string => {
 		t.is(string, 'foo');
 		promise.unhook();
-		t.end();
 	});
 
 	process.stdout.write('foo');
+	await promise;
 });
 
-test.cb('hook stderr', t => {
+test('hook stderr', async t => {
 	t.plan(1);
 
 	const promise = hookStderr(string => {
 		t.is(string, 'foo');
 		promise.unhook();
-		t.end();
 	});
 
 	process.stderr.write('foo');
+	await promise;
 });
 
-test.cb('hook custom stream', t => {
+test('hook custom stream', async t => {
 	t.plan(1);
-	const streams = [{write: () => {}}];
+	const streams = [{write() {}}];
 
 	let index = 0;
 
@@ -81,16 +82,16 @@ test.cb('hook custom stream', t => {
 
 		if (++index === 1) {
 			promise.unhook();
-			t.end();
 		}
 	});
 
 	streams[0].write('foo');
+	await promise;
 });
 
 function loggingWrite(log, returnValueValue) {
 	return (...items) => {
-		while (items[items.length - 1] === undefined) {
+		while (items.at(-1) === undefined) {
 			items.pop();
 		}
 
@@ -329,7 +330,7 @@ test('promise resolves when stderr is released via promise unhook method', async
 test('promise resolves when streams are hooked and released via callback', async t => {
 	t.plan(1);
 	const log = [];
-	const streams = [{write: () => {}}, {write: () => {}}];
+	const streams = [{write() {}}, {write() {}}];
 
 	const promise = hookStd({streams}, (string, unhook) => {
 		log.push(string);
@@ -495,9 +496,9 @@ test('hookStd preserves interleaved order with transform', t => {
 test('hookStd with custom streams preserves interleaved output', t => {
 	t.plan(1);
 	const streams = [
-		{write: () => {}},
-		{write: () => {}},
-		{write: () => {}},
+		{write() {}},
+		{write() {}},
+		{write() {}},
 	];
 
 	const promise = hookStd({streams});

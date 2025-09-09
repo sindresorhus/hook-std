@@ -14,7 +14,7 @@ const hook = (stream, options, transform, sharedOutput) => {
 	};
 
 	let unhookFunction;
-	const output = sharedOutput || [];
+	const output = sharedOutput ?? [];
 
 	const promise = new Promise(resolve => {
 		const {write} = stream;
@@ -46,7 +46,7 @@ const hook = (stream, options, transform, sharedOutput) => {
 				returnValue = typeof encoding === 'string' ? Buffer.from(callbackReturnValue).toString(encoding) : callbackReturnValue;
 			}
 
-			returnValue = returnValue || (Buffer.isBuffer(callbackReturnValue) ? callbackReturnValue : output_);
+			returnValue ||= (Buffer.isBuffer(callbackReturnValue) ? callbackReturnValue : output_);
 
 			return write.call(stream, returnValue, encoding, callback);
 		};
@@ -74,11 +74,9 @@ export function hookStd(options, transform) {
 	}
 
 	// Handle case where no arguments are provided
-	if (!options) {
-		options = {};
-	}
+	options ||= {};
 
-	const streams = options.streams || [process.stdout, process.stderr];
+	const streams = options.streams ?? [process.stdout, process.stderr];
 
 	// Use a shared output array for all streams to preserve interleaved order
 	const sharedOutput = [];

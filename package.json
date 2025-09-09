@@ -15,7 +15,7 @@
 	"types": "./index.d.ts",
 	"sideEffects": false,
 	"engines": {
-		"node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+		"node": ">=20"
 	},
 	"scripts": {
 		"test": "xo && ava && tsd"
@@ -42,10 +42,10 @@
 		"process"
 	],
 	"devDependencies": {
-		"@types/node": "^16.9.2",
-		"ava": "^3.15.0",
-		"tsd": "^0.17.0",
-		"xo": "^0.44.0"
+		"@types/node": "^24.3.1",
+		"ava": "^6.4.1",
+		"tsd": "^0.33.0",
+		"xo": "^1.2.2"
 	},
 	"ava": {
 		"serial": true
